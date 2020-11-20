@@ -18,6 +18,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //     res.end("Hello world!!");
 // }).listen(PORT);
 
+app.get('/', (req, res) => {
+        res.send("Hello World");
+});
 
 const { allmembers } = require('./models');
 
