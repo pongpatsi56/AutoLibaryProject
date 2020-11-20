@@ -13,10 +13,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-http.createServer((req,res)=>{
-    res.writeHead(200,{"Content-Type":"text/plain"});
-    res.end("Hello world!!");
-}).listen(PORT);
+// http.createServer((req,res)=>{
+//     res.writeHead(200,{"Content-Type":"text/plain"});
+//     res.end("Hello world!!");
+// }).listen(PORT);
 
 
 const { allmembers } = require('./models');
@@ -48,11 +48,11 @@ app.put('/put', (req, res) => {
 });
 
 
-// DB.sequelize.sync().then((req) => {
-//     app.listen(PORT, err => {
-//         if (err) return console.log('Cannot lisening at port:', PORT);
-//         console.log('Server listening on port:', PORT);
-//     })
-// });
+DB.sequelize.sync().then((req) => {
+    app.listen(PORT, err => {
+        if (err) return console.log('Cannot lisening at port:', PORT);
+        console.log('Server listening on port:', PORT);
+    })
+});
 
 
