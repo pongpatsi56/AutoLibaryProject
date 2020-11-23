@@ -1,7 +1,7 @@
 module.exports =(sequelize,DataTypes) => {
-    const subfield = sequelize.define("subfield",{
-        subfield_ID:{
-            type:DataTypes.INTEGER(6),
+    const indicator = sequelize.define("indicator",{
+        indicator_ID:{
+            type:DataTypes.INTEGER(5),
             allowNull:false,
             validate:{
                 notEmpty:true
@@ -9,26 +9,33 @@ module.exports =(sequelize,DataTypes) => {
             primaryKey: true
         },
         Field:{
-            type:DataTypes.STRING(10)  + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+            type:DataTypes.INTEGER(3),
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
         Code:{
-            type:DataTypes.STRING(45) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+            type:DataTypes.STRING(2) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
-        Name_Eng:{
-            type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+        Description:{
+            type:DataTypes.STRING(100) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+            allowNull:false,
+            validate:{
+                notEmpty:true
+            }
+        },
+        Order:{
+            type:DataTypes.INTEGER(1),
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
     })
-    return subfield;
+    return indicator;
 }

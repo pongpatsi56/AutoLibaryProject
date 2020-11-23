@@ -1,10 +1,9 @@
 {
   "development": {
-    "username": "soupeymq_us_lib",
-    "password": "qNzLgeDze8MvLu6Md8QvvTwq6hgDcRwU",
-    "database": "soupeymq_librarian",
-    "host": "localhost",
-"port": 33060,
+    "username": "autolibcis",
+    "password": "autolibcis789",
+    "database": "autolibcisbase",
+    "host": "db4free.net",
     "dialect": "mysql"
   },
   "test": {

@@ -6,6 +6,12 @@ const app = express();
 const path = require('path');
 const router = express.Router();
 const { allmembers } = require('./models');
+const { admin } = require('./models');
+const { subfield } = require('./models');
+const { field } = require('./models');
+const { indicator } = require('./models');
+const { databib } = require('./models');
+const { highschoollvl } = require('./models');
 
 
 const PORT = process.env.PORT || 5000;
@@ -14,19 +20,47 @@ const PORT = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-// http.createServer((req,res)=>{
-//     res.writeHead(200,{"Content-Type":"text/plain"});
-//     res.end("Hello world!!");
-// }).listen(PORT);
-
 app.get('/', (req, res) => {
     res.send("Hello World");
 });
 
 //get all
-app.get('/all', (req, res) => {
+app.get('/allmembers', (req, res) => {
     allmembers.findAll().then((user) => {
+        res.send(user);
+    })
+});
+app.get('/alladmin', (req, res) => {
+    admin.findAll().then((user) => {
+        res.send(user);
+    })
+});
+app.get('/allsubfield', (req, res) => {
+    subfield.findAll().then((user) => {
+        res.send(user);
+    })
+});
+app.get('/allfield', (req, res) => {
+    field.findAll().then((user) => {
+        res.send(user);
+    })
+});
+app.get('/allindc', (req, res) => {
+    indicator.findAll().then((user) => {
+        res.send(user);
+    })
+});
+app.get('/allindc/:order', (req, res) => {
+    indicator.findAll({
+        where:{
+            order:req.params.order
+        }
+    }).then((user) => {
+        res.send(user);
+    })
+});
+app.get('/alldbib', (req, res) => {
+    databib.findAll().then((user) => {
         res.send(user);
     })
 });

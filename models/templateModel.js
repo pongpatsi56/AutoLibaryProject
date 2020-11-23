@@ -1,34 +1,35 @@
 module.exports =(sequelize,DataTypes) => {
-    const subfield = sequelize.define("subfield",{
-        subfield_ID:{
-            type:DataTypes.INTEGER(6),
+    const template = sequelize.define("template",{
+        template_ID:{
+            type:DataTypes.INTEGER(20),
             allowNull:false,
             validate:{
                 notEmpty:true
             },
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
-        Field:{
-            type:DataTypes.STRING(10)  + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+        Name:{
+            type:DataTypes.STRING(255) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
-        Code:{
+        Type:{
             type:DataTypes.STRING(45) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
-        Name_Eng:{
-            type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+        Description:{
+            type:DataTypes.STRING(45) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
     })
-    return subfield;
+    return template;
 }
