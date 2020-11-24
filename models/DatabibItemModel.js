@@ -1,7 +1,7 @@
 module.exports =(sequelize,DataTypes) => {
     const databibitem = sequelize.define("databib_item",{
         Barcode:{
-            type:DataTypes.INTEGER(13),
+            type:DataTypes.STRING(13),
             allowNull:false,
             validate:{
                 notEmpty:true
