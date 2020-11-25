@@ -1,5 +1,5 @@
 module.exports =(sequelize,DataTypes) => {
-    const finereciept = sequelize.define("fine_reciept",{
+    const fine_reciept = sequelize.define("fine_reciept",{
         receipt_ID:{
             type:DataTypes.STRING(15) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
@@ -51,5 +51,5 @@ module.exports =(sequelize,DataTypes) => {
             }
         },
     })
-    return finereciept;
+    return fine_reciept;
 }

@@ -1,5 +1,5 @@
 module.exports =(sequelize,DataTypes) => {
-    const templateindicator = sequelize.define("temp_indicator",{
+    const temp_indicator = sequelize.define("temp_indicator",{
         ti_ID:{
             type:DataTypes.INTEGER(11),
             allowNull:false,
@@ -27,5 +27,5 @@ module.exports =(sequelize,DataTypes) => {
             }
         },
     })
-    return templateindicator;
+    return temp_indicator;
 }

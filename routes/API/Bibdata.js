@@ -1,7 +1,7 @@
 const express = require('express');
 const sequelize = require('sequelize');
 const router = express.Router();
-const { databibitem,databib,db } = require('../../models');
+const { databib_item,databib,db } = require('../../models');
 
 
 // get all databibs
@@ -9,19 +9,22 @@ router.get("/all", (req, res) => {
     databib.findAll().then(databibs => res.send(databibs));
   });
   
-  // get single databib by id
-  router.get("/find/:id", (req, res) => {
+  // get databib by id
+  router.get("/bibinfo/:id", (req, res) => {
     databib.findAll({
       where: {
         Bib_ID: req.params.id
       }
     }).then(databib => res.send(databib));
-    databibitem.findAll({
+  });
+
+  // get bibitem by id
+  router.get("/bibitem/:id", (req, res) => {
+    databib_item.findAll({
       where: {
         Bib_ID: req.params.id
       }
-    }).then(databib => res.send(databib));
-
+    }).then(databibitem => res.send(databibitem));
   });
   
   // raw query databib

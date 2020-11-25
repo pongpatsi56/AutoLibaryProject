@@ -1,5 +1,5 @@
 module.exports =(sequelize,DataTypes) => {
-    const databibitem = sequelize.define("databib_item",{
+    const databib_item = sequelize.define("databib_item",{
         Barcode:{
             type:DataTypes.STRING(13),
             allowNull:false,
@@ -46,5 +46,5 @@ module.exports =(sequelize,DataTypes) => {
             type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
         },
     })
-    return databibitem;
+    return databib_item;
 }

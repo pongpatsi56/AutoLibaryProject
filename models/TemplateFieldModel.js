@@ -1,5 +1,5 @@
 module.exports =(sequelize,DataTypes) => {
-    const templatefield = sequelize.define("temp_field",{
+    const temp_field = sequelize.define("temp_field",{
         tf_ID:{
             type:DataTypes.INTEGER(20),
             allowNull:false,
@@ -24,5 +24,5 @@ module.exports =(sequelize,DataTypes) => {
             }
         },
     })
-    return templatefield;
+    return temp_field;
 }

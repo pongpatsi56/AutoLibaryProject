@@ -1,5 +1,5 @@
 module.exports =(sequelize,DataTypes) => {
-    const highschoollvl = sequelize.define("highschoollevel",{
+    const highschoollevel = sequelize.define("highschoollevel",{
         highschoollevel_ID:{
             type:DataTypes.INTEGER(10),
             allowNull:false,
@@ -23,5 +23,5 @@ module.exports =(sequelize,DataTypes) => {
             }
         },
     })
-    return highschoollvl;
+    return highschoollevel;
 }
