@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "autolibcis",
-    "password": "autolibcis789",
+    "username": "root",
+    "password": "",
     "database": "autolibcisbase",
-    "host": "db4free.net",
+    "host": "localhost",
     "dialect": "mysql"
   },
   "test": {

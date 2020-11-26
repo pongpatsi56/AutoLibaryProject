@@ -43,6 +43,13 @@ module.exports =(sequelize,DataTypes) => {
                 notEmpty:true
             }
         },
-    })
+    });
+
+    databib.associate = models =>{
+        databib.belongsTo(models.databib_item,{
+            foreignKey: 'Bib_ID'
+        })
+    };
+
     return databib;
 }

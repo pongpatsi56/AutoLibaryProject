@@ -27,6 +27,20 @@ router.get("/all", (req, res) => {
     }).then(databibitem => res.send(databibitem));
   });
   
+  // get bibitem by id
+  router.get("/allbib/:id", (req, res) => {
+    databib_item.findAll({
+      where: {Bib_ID: req.params.id},
+      include:[{
+        model:databib,
+        where:{
+          Bib_ID: req.params.id
+        },
+        required:false
+      }]
+    }).then(databibitem => res.send(databibitem));
+  });
+
   // raw query databib
   router.get("/raw", (req, res) => {
     db.sequelize

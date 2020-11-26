@@ -45,6 +45,12 @@ module.exports =(sequelize,DataTypes) => {
         item_description:{
             type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
         },
-    })
+    });
+
+    databib_item.associate = models =>{
+        databib_item.hasMany(models.databib,{
+            foreignKey: 'Bib_ID'
+        })
+    };
     return databib_item;
 }
