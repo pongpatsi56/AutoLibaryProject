@@ -1,5 +1,5 @@
 const express = require('express');
-const sequelize = require('sequelize');
+const {sequelize,Op} = require('sequelize');
 const router = express.Router();
 const { databib_item,databib,db } = require('../../models');
 
@@ -39,6 +39,56 @@ router.get("/all", (req, res) => {
         required:false
       }]
     }).then(databibitem => res.send(databibitem));
+  });
+
+  // get findlimit
+  router.get("/findbook/:keyword", async (req, res) => {
+    var Keyword = req.params.keyword != null ? req.params.keyword : '';
+    var Page = parseInt(req.query.StartPage);
+    var limit = parseInt(req.query.perPage);
+    console.log(Keyword);
+    console.log(Page);
+    console.log(limit);
+    console.log('----------------------');
+    console.log(req.params.keyword);
+    var StartIndex = (Page - 1)* limit;
+    var EndIndex = Page * limit;
+    var Results = {};
+
+    var ObjDataBib = [];
+    var GetAllBibID = await databib.findAll({
+      attributes: ['Bib_ID'],
+      where:{
+        Subfield :{
+          [Op.substring]:Keyword
+        }
+      },
+      group: ['Bib_ID']
+    });
+    var bibID = JSON.parse(JSON.stringify(GetAllBibID));
+    for (const key in bibID) {
+        var ObjSingleBib = await databib.findAll({attributes: ['Bib_ID','Field','Subfield'], where: bibID[key]});
+        var datainfibib = JSON.parse(JSON.stringify(ObjSingleBib));
+        ObjDataBib.push(datainfibib);
+    }
+
+    if (StartIndex > 0) {
+      Results.previous = {
+        Page: Page - 1,
+        limit: limit
+      }
+    }
+    if (EndIndex < ObjDataBib.length) {
+      Results.next = {
+        Page: Page + 1,
+        limit: limit
+      }
+    }
+
+    Results.Results = ObjDataBib.slice(StartIndex,EndIndex)
+    console.log(JSON.parse(JSON.stringify(Results)));
+
+  res.send(Results);
   });
 
   // raw query databib
