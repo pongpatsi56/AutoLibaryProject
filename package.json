@@ -7,11 +7,13 @@
   "license": "MIT",
   "scripts": {
     "start": "node index",
-    "dev": "nodemon index"
+    "dev": "cross-env NODE_ENV=development node index",
+    "prod": "cross-env NODE_ENV=production node index"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "express": "^4.17.1",
     "fs": "^0.0.1-security",
     "init": "^0.1.2",
