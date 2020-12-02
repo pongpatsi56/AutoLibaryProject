@@ -30,14 +30,79 @@ router.get("/bibitem/:id", (req, res) => {
 });
 
 // get bibitem by id
-router.get("/allbib/:id", (req, res) => {
-  databib.belongsTo(databib_item, { foreignKey: 'Bib_ID', associateKey: 'Bib_ID' });
-  databib.findAll({
-    include: [{
-      model: databib_item
-    }],
+router.get("/allbib/:id", async (req, res) => {
+  var resData =[];
+  var headerBook = [];
+  var getMarc = await databib.findAll({
+    attributes:['Bib_ID','Field','Indicator1','Indicator2','Subfield'],
+    where: { Bib_ID: req.params.id },
+    order: ['Field']
+  });
+  var getItemBook = await databib_item.findAll({
+    attributes: ['Bib_ID', 'Barcode', 'Copy'],
     where: { Bib_ID: req.params.id }
-  }).then(databibitem => res.send(databibitem));
+  });
+  var getCallNo = await databib.findOne({
+    attributes: ['Subfield'], where: { Field: '082', Bib_ID: req.params.id }
+  });
+
+  ///// region HeadBook /////
+  for (const key in Object.keys(getMarc)) {
+    var title, author, publish, callno, isbn, picpath;
+    if (parseInt(getMarc[key].dataValues.Field) === parseInt(245)) {
+      title = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+    }
+    if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
+      author = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+    }
+    if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
+      publish = getMarc[key].dataValues.Subfield.replace('/', '').replace('#a=', '').replace('#b=', '').replace('#c=', '')
+    }
+    if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
+      callno = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+    }
+    if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
+      isbn = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+    }
+    if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
+      picpath = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '')
+    }
+  }
+  title = (title) ? title : 'NoTitleBook';
+  author = author ? author : 'NoAuthorBook';
+  publish = publish ? publish : 'NoPublishBook';
+  callno = callno ? callno : 'NoCallNoBook';
+  isbn = isbn ? isbn : 'NoISBNBook';
+  picpath = picpath ? picpath : 'https://autolibraryrmutlthesisproject.000webhostapp.com/lib/img/Noimgbook.jpg';
+  headerBook.push({
+    "Title": title,
+    "Author": author,
+    "Publish": publish,
+    "CallNo": callno,
+    "ISBN": isbn,
+    "PicPath": picpath
+  });
+  ///////////////////////
+
+  ///// region MARC /////
+  for (const key in Object.keys(getMarc)) {
+    getMarc[key].dataValues.Subfield = getMarc[key].dataValues.Subfield.replace('#a=','$a').replace('#b=','$b').replace('#c=','$c').replace('#d=','$d').replace('#e=','$e').replace('/','')
+  }
+  ///////////////////////
+
+  ///// region item /////
+  for (const run in Object.keys(getItemBook)) {
+    if (getItemBook[run].dataValues.Copy == null || getItemBook[run].dataValues.Copy == undefined) { getItemBook[run].dataValues.Copy = '-' }
+    if (getCallNo) {
+      getItemBook[run].dataValues.CallNo = getCallNo.toJSON().Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('/', '');
+    } else {
+      getItemBook[run].dataValues.CallNo = '-';
+    }
+  }
+  ////////////////////////
+
+  resData.push(headerBook,getMarc,getItemBook)
+  res.json(resData);
 });
 
 // get findlimit

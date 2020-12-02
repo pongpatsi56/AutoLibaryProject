@@ -18,8 +18,8 @@ module.exports =(sequelize,DataTypes) => {
         Copy:{
             type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
         },
-        borrowandreturn_bnr_ID:{
-            type:DataTypes.INTEGER(20),
+        item_status:{
+            type:DataTypes.STRING(45) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
         },
         item_in:{
             type:DataTypes.DATE,
