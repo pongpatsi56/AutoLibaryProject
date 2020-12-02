@@ -70,7 +70,7 @@ router.get("/findbook/:keyword", async (req, res) => {
     if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var author = '-';
     if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var publish = '-';
     if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var callno = '-';
-    if (getPicPath) { var picpath = getPicPath.toJSON().PicPath.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var picpath = '-';
+    if (getPicPath) { var picpath = getPicPath.toJSON().PicPath.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var picpath = 'https://autolibraryrmutlthesisproject.000webhostapp.com/lib/img/Noimgbook.jpg';
     ObjDataBib = {
       Bib_ID : GetAllBibID[key].Bib_ID,
       Title: title,
