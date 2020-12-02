@@ -5,15 +5,15 @@ module.exports =(sequelize,DataTypes) => {
             allowNull:false,
             validate:{
                 notEmpty:true
-            },
-            primaryKey: true
+            }
         },
         Bib_ID:{
             type:DataTypes.STRING(10) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
-            }
+            },
+            primaryKey: true
         },
         Copy:{
             type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
