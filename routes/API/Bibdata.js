@@ -165,7 +165,11 @@ router.get("/findbook/:keyword", async (req, res) => {
       limit: limit
     }
   }
-
+  Results.pagiInfo = {
+    currentPage : Page,
+    countPage : Math.ceil(ObjDataBiball.length / limit),
+    limit: limit
+  }
   Results.Results = ObjDataBiball.slice(StartIndex, EndIndex)
   console.log(ObjDataBiball);
   res.send(Results);
