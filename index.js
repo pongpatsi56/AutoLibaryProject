@@ -23,7 +23,10 @@ app.get('/', (req, res) => {
 });
 
 /// bibdata api route ///
-app.use("/bibdata",  require("./routes/API/Bibdata"));
+app.use("/bibdata",  require("./routes/Bibdata"));
+
+/// marc helper route ///
+app.use("/marc",  require("./routes/MarcData"));
 
 
 DB.sequelize.sync().then((req) => {
