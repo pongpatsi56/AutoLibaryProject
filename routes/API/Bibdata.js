@@ -1,8 +1,7 @@
-const e = require('express');
 const express = require('express');
 const { sequelize, Op } = require('sequelize');
 const router = express.Router();
-const { databib_item, databib, db } = require('../../models');
+const { databib_item, databib, field, subfield, indicator } = require('../../models');
 
 
 // get all databibs
@@ -29,12 +28,12 @@ router.get("/bibitem/:id", (req, res) => {
   }).then(databibitem => res.send(databibitem));
 });
 
-// get bibitem by id
+// get bibitem for InfomationPage
 router.get("/allbib/:id", async (req, res) => {
-  var resData =[];
+  var resData = [];
   var headerBook = [];
   var getMarc = await databib.findAll({
-    attributes:['Bib_ID','Field','Indicator1','Indicator2','Subfield'],
+    attributes: ['Bib_ID', 'Field', 'Indicator1', 'Indicator2', 'Subfield'],
     where: { Bib_ID: req.params.id },
     order: ['Field']
   });
@@ -86,7 +85,7 @@ router.get("/allbib/:id", async (req, res) => {
 
   ///// region MARC /////
   for (const key in Object.keys(getMarc)) {
-    getMarc[key].dataValues.Subfield = getMarc[key].dataValues.Subfield.replace('#a=','$a').replace('#b=','$b').replace('#c=','$c').replace('#d=','$d').replace('#e=','$e').replace('/','')
+    getMarc[key].dataValues.Subfield = getMarc[key].dataValues.Subfield.replace('#a=', '$a').replace('#b=', '$b').replace('#c=', '$c').replace('#d=', '$d').replace('#e=', '$e').replace('/', '')
   }
   ///////////////////////
 
@@ -101,11 +100,11 @@ router.get("/allbib/:id", async (req, res) => {
   }
   ////////////////////////
 
-  resData.push(headerBook,getMarc,getItemBook)
+  resData.push(headerBook, getMarc, getItemBook)
   res.json(resData);
 });
 
-// get findlimit
+// get bib for SearchingPage
 router.get("/findbook/:keyword", async (req, res) => {
   var Keyword = req.params.keyword != null ? req.params.keyword : '';
   var Page = parseInt(req.query.StartPage);
@@ -131,10 +130,10 @@ router.get("/findbook/:keyword", async (req, res) => {
     var getPublishBib = await databib.findOne({ attributes: [['Subfield', 'Publish']], where: { Field: '260', Bib_ID: GetAllBibID[key].Bib_ID } });
     var getCallNoBib = await databib.findOne({ attributes: [['Subfield', 'CallNo']], where: { Field: '082', Bib_ID: GetAllBibID[key].Bib_ID } });
     var getPicPath = await databib.findOne({ attributes: [['Subfield', 'PicPath']], where: { Field: '960', Bib_ID: GetAllBibID[key].Bib_ID } });
-    if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var title = '-';
-    if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var author = '-';
-    if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var publish = '-';
-    if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('#a=','').replace('#b=','').replace('#c=','').replace('#d=','').replace('#e=','') } else var callno = '-';
+    if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var title = '-';
+    if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var author = '-';
+    if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var publish = '-';
+    if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var callno = '-';
     if (getPicPath) {
       var picpath = getPicPath.toJSON().PicPath.replace('#a=', '');
       if (picpath == '') {
@@ -143,7 +142,7 @@ router.get("/findbook/:keyword", async (req, res) => {
       }
     } else var picpath = '-';
     ObjDataBib = {
-      Bib_ID : GetAllBibID[key].Bib_ID,
+      Bib_ID: GetAllBibID[key].Bib_ID,
       Title: title,
       Author: author,
       Publish: publish,
@@ -152,7 +151,7 @@ router.get("/findbook/:keyword", async (req, res) => {
     };
     ObjDataBiball.push(ObjDataBib);
   }
-  
+
   if (StartIndex > 0) {
     Results.previous = {
       Page: Page - 1,
@@ -166,8 +165,8 @@ router.get("/findbook/:keyword", async (req, res) => {
     }
   }
   Results.pagiInfo = {
-    currentPage : Page,
-    countPage : Math.ceil(ObjDataBiball.length / limit),
+    currentPage: Page,
+    countPage: Math.ceil(ObjDataBiball.length / limit),
     limit: limit
   }
   Results.Results = ObjDataBiball.slice(StartIndex, EndIndex)
@@ -177,17 +176,70 @@ router.get("/findbook/:keyword", async (req, res) => {
 
 // raw query databib
 router.get("/raw", async (req, res) => {
-  const datafield = await sequelize.query('SELECT * FORM databib WHERE Field = "245"', { type: sequelize.QueryTypes.SELECT })
+  const datafield = await databib.sequelize.query('SELECT * FROM databibs WHERE Field = "245"', { type: databib.sequelize.QueryTypes.SELECT })
 
 
   res.send(datafield);
 });
 
-// post new databib
+/* get field indc1,2 subfield show for add book */
+router.get("/marc/:tag", (req, res) => {
+  try {
+    field.findAll({
+      attributes: ['Field', 'Name'],
+      include: [
+        {
+          model: indicator, as: 'indicator1',
+          attributes: ['Code', 'Description'],
+          where: { Order: '1' }
+        },
+        {
+          model: indicator, as: 'indicator2',
+          attributes: ['Code', 'Description'],
+          where: { Order: '2' }
+        },
+        {
+          model: subfield,
+          attributes: ['Code', 'Name_Eng']
+        }
+      ],
+      where: {
+        Field: req.params.tag
+      }
+    }).then(outp => res.send(outp));
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json(e);
+  }
+});
+
+// ADD Book 
+
+router.get("/bulkadd", async (req, res) => {
+  try {
+    await databib.bulkCreate([
+      { Bib_ID: '100', Field: '245', Indicator1: '#', Indicator2: '2', Subfield: '$a=หนังสือออออ1' },
+      { Bib_ID: '100', Field: '100', Indicator1: '', Indicator2: '', Subfield: '$a=Books2' }
+    ]).then(outp => res.send(outp));
+  } catch (e) {
+    console.log(e);
+  }
+});
+
 router.post("/new", (req, res) => {
-  databib.create({
-    text: req.body.text
-  }).then(databib => res.send(databib));
+  try {
+    const { bibId, field, indc1, indc2, subfield } = req.body;
+    databib.create({
+      Bib_ID: bibId,
+      Field: field,
+      Indicator1: indc1,
+      Indicator2: indc2,
+      Subfield: subfield
+    });
+    res.status(200).send('Field:', field, ' of ', bibId, ' has been Added');
+  } catch (error) {
+    console.log('Error:', error);
+  }
 });
 
 // delete databib

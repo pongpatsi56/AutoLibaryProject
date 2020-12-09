@@ -9,7 +9,7 @@ module.exports =(sequelize,DataTypes) => {
             primaryKey: true
         },
         Field:{
-            type:DataTypes.STRING(10)  + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+            type:DataTypes.STRING(3)  + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true

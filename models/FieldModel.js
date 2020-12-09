@@ -5,15 +5,15 @@ module.exports =(sequelize,DataTypes) => {
             allowNull:false,
             validate:{
                 notEmpty:true
-            },
-            primaryKey: true
+            }
         },
         Field:{
             type:DataTypes.STRING(3)  + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
-            }
+            },
+            primaryKey: true
         },
         Name:{
             type:DataTypes.STRING(80) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
@@ -22,6 +22,11 @@ module.exports =(sequelize,DataTypes) => {
                 notEmpty:true
             }
         },
-    })
+    });
+    field.associate = models => {
+        field.hasMany(models.subfield, {foreignKey: 'Field'});
+        field.hasMany(models.indicator, { as: 'indicator1', foreignKey: 'Field' });
+        field.hasMany(models.indicator, { as: 'indicator2', foreignKey: 'Field' });
+    };
     return field;
 }

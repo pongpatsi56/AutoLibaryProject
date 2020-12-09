@@ -6,6 +6,7 @@ module.exports =(sequelize,DataTypes) => {
             validate:{
                 notEmpty:true
             },
+            autoIncrement: true,
             primaryKey: true
         },
         Bib_ID:{
@@ -24,17 +25,9 @@ module.exports =(sequelize,DataTypes) => {
         },
         Indicator1:{
             type:DataTypes.STRING(1) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
-            allowNull:false,
-            validate:{
-                notEmpty:true
-            }
         },
         Indicator2:{
             type:DataTypes.STRING(1) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
-            allowNull:false,
-            validate:{
-                notEmpty:true
-            }
         },
         Subfield:{
             type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
