@@ -1,5 +1,6 @@
 const { databib_item, databib } = require('../models');
 const { Op } = require('sequelize');
+const moment = require('moment');
 
 exports.list_all_bib = (req, res) => {
     databib.findAll().then(databibs => res.send(databibs));
@@ -173,10 +174,32 @@ exports.list_bibdata_raw_queries = async (req, res) => {
 
 exports.create_databib_bulk = async (req, res) => {
     try {
-        await databib.bulkCreate([
-            { Bib_ID: '100', Field: '245', Indicator1: '#', Indicator2: '2', Subfield: '$a=หนังสือออออ1' },
-            { Bib_ID: '100', Field: '100', Indicator1: '', Indicator2: '', Subfield: '$a=Books2' }
-        ]).then(outp => res.send(outp));
+        const ObjDataBib = JSON.stringify(req.body.databib);
+        const dateObj = { createdAt: moment().format('YYYY-MM-D HH:mm:ss'), updatedAt: moment().format('YYYY-MM-D HH:mm:ss') }
+        // for (const key in Object.keys(ObjDataBib)) {
+        //     await Object.assign(ObjDataBib[key], dateObj);
+        //     console.log(ObjDataBib[key]);
+        // }
+        console.log(ObjDataBib);
+        console.log(dateObj);
+        await databib.bulkCreate([ObjDataBib]).then(outp => res.json(outp));
+            // { "Bib_ID": "b00149574", "Field": "Leader", "Indicator1": "", "Indicator2": "", "Subfield": "00700cam##2200229ua#4500" }
+            // { "Bib_ID": "b00149574", "Field": "001", "Indicator1": "#", "Indicator2": "#", "Subfield": "b00149574" }
+            // { "Bib_ID": "b00149574", "Field": "005", "Indicator1": "#", "Indicator2": "#", "Subfield": "20200415040221.6" }
+            // { "Bib_ID": "b00149574", "Field": "008", "Indicator1": "#", "Indicator2": "#", "Subfield": "191009s2562##th#a##g####000#0#tha#d" }
+            // { "Bib_ID": "b00149574", "Field": "020", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a 9786162624858" }
+            // { "Bib_ID": "b00149574", "Field": "050", "Indicator1": "1", "Indicator2": "4", "Subfield": "\a QA76.73.P98 \b ส826ก 2562" }
+            // { "Bib_ID": "b00149574", "Field": "082", "Indicator1": "0", "Indicator2": "4", "Subfield": "\a 005.133 \b ส826ก 2562" }
+            // { "Bib_ID": "b00149574", "Field": "100", "Indicator1": "0", "Indicator2": "#", "Subfield": "\a สุพจน์ สง่ากอง." }
+            // { "Bib_ID": "b00149574", "Field": "245", "Indicator1": "1", "Indicator2": "0", "Subfield": "\a การเขียนโปรแกรมภาษา Python / \c สุพจน์ สง่ากอง." }
+            // { "Bib_ID": "b00149574", "Field": "250", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a พิมพ์ครั้งที่ 1." }
+            // { "Bib_ID": "b00149574", "Field": "260", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a กรุงเทพฯ : \b รีไวว่า,\c 2562." }
+            // { "Bib_ID": "b00149574", "Field": "300", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a 216 หน้า : \b ภาพประกอบ, ตาราง ; \c 21 ซม" }
+            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a การเขียนโปรแกรม (คอมพิวเตอร์)." }
+            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a โปรแกรมคอมพิวเตอร์." },
+            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a ไพธอน (ภาษาคอมพิวเตอร์)." }
+            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a ภาษาคอมพิวเตอร์." }
+            // res.json(ObjDataBib);
     } catch (e) {
         console.log(e);
     }
@@ -203,15 +226,24 @@ exports.create_databib = (req, res) => {
     }
 };
 
-exports.update_databib = (req, res) => {
-    databib.update(
-        {
-            text: req.body.text
-        },
-        {
-            where: { id: req.body.id }
-        }
-    ).then(() => res.send("success"));
+exports.update_databib = async (req, res) => {
+    try {
+        const { databib_ID, subfield, indc1, indc2 } = req.body;
+        await databib.update(
+            {
+                Indicator1: indc1,
+                Indicator2: indc2,
+                Subfield: subfield
+            },
+            {
+                where: {
+                    databib_ID: databib_ID
+                }
+            }
+        ).then(res.json(await databib.findAll({ where: { databib_ID: databib_ID } })))
+    } catch (e) {
+        console.log(e);
+    }
 };
 
 exports.delete_databib = (req, res) => {

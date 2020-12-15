@@ -28,6 +28,9 @@ app.use("/bibdata",  require("./routes/Bibdata"));
 /// marc helper route ///
 app.use("/marc",  require("./routes/MarcData"));
 
+/// login route ///
+app.use("/userlogin",  require("./routes/Users"));
+
 
 DB.sequelize.sync().then((req) => {
     app.listen(PORT, err => {

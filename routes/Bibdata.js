@@ -22,7 +22,7 @@ router.get("/findbook/:keyword", BibDataControllers.list_databib_searching_pagin
 router.get("/raw", BibDataControllers.list_bibdata_raw_queries);
 
 // ADD Book
-router.get("/bulkadd", BibDataControllers.create_databib_bulk);
+router.post("/bulkadd", BibDataControllers.create_databib_bulk);
 
 router.post("/new", BibDataControllers.create_databib);
 

@@ -10,7 +10,7 @@ module.exports =(sequelize,DataTypes) => {
             autoIncrement: true
         },
         Field:{
-            type:DataTypes.INTEGER(3),
+            type: DataTypes.STRING(6) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
