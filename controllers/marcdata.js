@@ -8,16 +8,19 @@ exports.marc_add_helper = (req, res) => {
                 {
                     model: indicator, as: 'indicator1',
                     attributes: ['Code', 'Description'],
-                    where: { Order: '1' }
+                    where: { Order: '1' },
+                    required:false
                 },
                 {
                     model: indicator, as: 'indicator2',
                     attributes: ['Code', 'Description'],
-                    where: { Order: '2' }
+                    where: { Order: '2' },
+                    required:false
                 },
                 {
                     model: subfield,
-                    attributes: ['Code', 'Name_Eng']
+                    attributes: ['Code', 'Name_Eng'],
+                    required:false
                 }
             ],
             where: {

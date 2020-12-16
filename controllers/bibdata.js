@@ -1,4 +1,4 @@
-const { databib_item, databib } = require('../models');
+const { databib_item, databib, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const moment = require('moment');
 
@@ -43,22 +43,22 @@ exports.list_databib_all_infomation = async (req, res) => {
     for (const key in Object.keys(getMarc)) {
         var title, author, publish, callno, isbn, picpath;
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(245)) {
-            title = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+            title = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
-            author = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+            author = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
-            publish = getMarc[key].dataValues.Subfield.replace('/', '').replace('#a=', '').replace('#b=', '').replace('#c=', '')
+            publish = getMarc[key].dataValues.Subfield.replace('/', '').replace('\\a', '').replace('\\b', '').replace('\\c', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
-            callno = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+            callno = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
-            isbn = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('/', '')
+            isbn = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
-            picpath = getMarc[key].dataValues.Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '')
+            picpath = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '')
         }
     }
     title = (title) ? title : 'NoTitleBook';
@@ -79,7 +79,34 @@ exports.list_databib_all_infomation = async (req, res) => {
 
     ///// region MARC /////
     for (const key in Object.keys(getMarc)) {
-        getMarc[key].dataValues.Subfield = getMarc[key].dataValues.Subfield.replace('#a=', '$a').replace('#b=', '$b').replace('#c=', '$c').replace('#d=', '$d').replace('#e=', '$e').replace('/', '')
+        getMarc[key].dataValues.Subfield = getMarc[key].dataValues.Subfield
+        .replace('\\a', '$a')
+        .replace('\\b', '$b')
+        .replace('\\c', '$c')
+        .replace('\\d', '$d')
+        .replace('\\e', '$e')
+        .replace('\\f', '$f')
+        .replace('\\g', '$g')
+        .replace('\\h', '$h')
+        .replace('\\i', '$i')
+        .replace('\\j', '$j')
+        .replace('\\k', '$k')
+        .replace('\\l', '$l')
+        .replace('\\m', '$m')
+        .replace('\\n', '$n')
+        .replace('\\o', '$o')
+        .replace('\\p', '$p')
+        .replace('\\q', '$q')
+        .replace('\\r', '$r')
+        .replace('\\s', '$s')
+        .replace('\\t', '$t')
+        .replace('\\u', '$u')
+        .replace('\\v', '$v')
+        .replace('\\w', '$w')
+        .replace('\\x', '$x')
+        .replace('\\y', '$y')
+        .replace('\\z', '$z')
+        .replace('/', '')
     }
     ///////////////////////
 
@@ -87,7 +114,7 @@ exports.list_databib_all_infomation = async (req, res) => {
     for (const run in Object.keys(getItemBook)) {
         if (getItemBook[run].dataValues.Copy == null || getItemBook[run].dataValues.Copy == undefined) { getItemBook[run].dataValues.Copy = '-' }
         if (getCallNo) {
-            getItemBook[run].dataValues.CallNo = getCallNo.toJSON().Subfield.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('/', '');
+            getItemBook[run].dataValues.CallNo = getCallNo.toJSON().Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('/', '');
         } else {
             getItemBook[run].dataValues.CallNo = '-';
         }
@@ -123,12 +150,12 @@ exports.list_databib_searching_pagination = async (req, res) => {
         var getPublishBib = await databib.findOne({ attributes: [['Subfield', 'Publish']], where: { Field: '260', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getCallNoBib = await databib.findOne({ attributes: [['Subfield', 'CallNo']], where: { Field: '082', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getPicPath = await databib.findOne({ attributes: [['Subfield', 'PicPath']], where: { Field: '960', Bib_ID: GetAllBibID[key].Bib_ID } });
-        if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var title = '-';
-        if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var author = '-';
-        if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var publish = '-';
-        if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('#a=', '').replace('#b=', '').replace('#c=', '').replace('#d=', '').replace('#e=', '') } else var callno = '-';
+        if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var title = '-';
+        if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var author = '-';
+        if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var publish = '-';
+        if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var callno = '-';
         if (getPicPath) {
-            var picpath = getPicPath.toJSON().PicPath.replace('#a=', '');
+            var picpath = getPicPath.toJSON().PicPath.replace('\\a', '');
             if (picpath == '') {
                 ////// Set Default NoImgPicture /////
                 picpath = 'https://autolibraryrmutlthesisproject.000webhostapp.com/lib/img/Noimgbook.jpg'
@@ -172,36 +199,22 @@ exports.list_bibdata_raw_queries = async (req, res) => {
     res.send(datafield);
 };
 
+// exports.get_MaxBibId = async (req, res) => {
+//     await databib.sequelize.query(
+//         'SELECT MAX(Bib_ID) AS maxID FROM databibs ',
+//      { type: databib.sequelize.QueryTypes.SELECT }
+//      ).then((maxBibId) =>{
+//         // Object.assign(maxBibId,{maxID : parseInt(maxID) + 1})
+//         res.send(maxBibId);
+//      })
+// };
+
 exports.create_databib_bulk = async (req, res) => {
     try {
-        const ObjDataBib = JSON.stringify(req.body.databib);
-        const dateObj = { createdAt: moment().format('YYYY-MM-D HH:mm:ss'), updatedAt: moment().format('YYYY-MM-D HH:mm:ss') }
-        // for (const key in Object.keys(ObjDataBib)) {
-        //     await Object.assign(ObjDataBib[key], dateObj);
-        //     console.log(ObjDataBib[key]);
-        // }
-        console.log(ObjDataBib);
-        console.log(dateObj);
-        await databib.bulkCreate([ObjDataBib]).then(outp => res.json(outp));
-            // { "Bib_ID": "b00149574", "Field": "Leader", "Indicator1": "", "Indicator2": "", "Subfield": "00700cam##2200229ua#4500" }
-            // { "Bib_ID": "b00149574", "Field": "001", "Indicator1": "#", "Indicator2": "#", "Subfield": "b00149574" }
-            // { "Bib_ID": "b00149574", "Field": "005", "Indicator1": "#", "Indicator2": "#", "Subfield": "20200415040221.6" }
-            // { "Bib_ID": "b00149574", "Field": "008", "Indicator1": "#", "Indicator2": "#", "Subfield": "191009s2562##th#a##g####000#0#tha#d" }
-            // { "Bib_ID": "b00149574", "Field": "020", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a 9786162624858" }
-            // { "Bib_ID": "b00149574", "Field": "050", "Indicator1": "1", "Indicator2": "4", "Subfield": "\a QA76.73.P98 \b ส826ก 2562" }
-            // { "Bib_ID": "b00149574", "Field": "082", "Indicator1": "0", "Indicator2": "4", "Subfield": "\a 005.133 \b ส826ก 2562" }
-            // { "Bib_ID": "b00149574", "Field": "100", "Indicator1": "0", "Indicator2": "#", "Subfield": "\a สุพจน์ สง่ากอง." }
-            // { "Bib_ID": "b00149574", "Field": "245", "Indicator1": "1", "Indicator2": "0", "Subfield": "\a การเขียนโปรแกรมภาษา Python / \c สุพจน์ สง่ากอง." }
-            // { "Bib_ID": "b00149574", "Field": "250", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a พิมพ์ครั้งที่ 1." }
-            // { "Bib_ID": "b00149574", "Field": "260", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a กรุงเทพฯ : \b รีไวว่า,\c 2562." }
-            // { "Bib_ID": "b00149574", "Field": "300", "Indicator1": "#", "Indicator2": "#", "Subfield": "\a 216 หน้า : \b ภาพประกอบ, ตาราง ; \c 21 ซม" }
-            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a การเขียนโปรแกรม (คอมพิวเตอร์)." }
-            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a โปรแกรมคอมพิวเตอร์." },
-            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a ไพธอน (ภาษาคอมพิวเตอร์)." }
-            // { "Bib_ID": "b00149574", "Field": "650", "Indicator1": "#", "Indicator2": "4", "Subfield": "\a ภาษาคอมพิวเตอร์." }
-            // res.json(ObjDataBib);
+        await databib.bulkCreate(req.body.databib).then(outp => res.json(outp));
     } catch (e) {
         console.log(e);
+        res.json(e);
     }
 };
 
