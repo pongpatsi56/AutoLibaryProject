@@ -21,8 +21,8 @@ router.get("/findbook/:keyword", BibDataControllers.list_databib_searching_pagin
 // raw query databib
 router.get("/raw", BibDataControllers.list_bibdata_raw_queries);
 
-// // get max bib id
-// router.get("/maxbibid", BibDataControllers.get_MaxBibId);
+// get max bib id
+router.get("/maxbibid", BibDataControllers.get_MaxBibId);
 
 // ADD Book
 router.post("/bulkadd", BibDataControllers.create_databib_bulk);

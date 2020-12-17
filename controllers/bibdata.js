@@ -1,5 +1,6 @@
 const { databib_item, databib, sequelize } = require('../models');
 const { Op } = require('sequelize');
+const { default: ShortUniqueId } = require('short-unique-id')
 const moment = require('moment');
 
 exports.list_all_bib = (req, res) => {
@@ -43,22 +44,183 @@ exports.list_databib_all_infomation = async (req, res) => {
     for (const key in Object.keys(getMarc)) {
         var title, author, publish, callno, isbn, picpath;
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(245)) {
-            title = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
+            title = getMarc[key].dataValues.Subfield
+            .replace('\\a', '$a')
+            .replace('\\b', '$b')
+            .replace('\\c', '$c')
+            .replace('\\d', '$d')
+            .replace('\\e', '$e')
+            .replace('\\f', '$f')
+            .replace('\\g', '$g')
+            .replace('\\h', '$h')
+            .replace('\\i', '$i')
+            .replace('\\j', '$j')
+            .replace('\\k', '$k')
+            .replace('\\l', '$l')
+            .replace('\\m', '$m')
+            .replace('\\n', '$n')
+            .replace('\\o', '$o')
+            .replace('\\p', '$p')
+            .replace('\\q', '$q')
+            .replace('\\r', '$r')
+            .replace('\\s', '$s')
+            .replace('\\t', '$t')
+            .replace('\\u', '$u')
+            .replace('\\v', '$v')
+            .replace('\\w', '$w')
+            .replace('\\x', '$x')
+            .replace('\\y', '$y')
+            .replace('\\z', '$z')
+            .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
-            author = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
+            author = getMarc[key].dataValues.Subfield
+            .replace('\\a', '$a')
+            .replace('\\b', '$b')
+            .replace('\\c', '$c')
+            .replace('\\d', '$d')
+            .replace('\\e', '$e')
+            .replace('\\f', '$f')
+            .replace('\\g', '$g')
+            .replace('\\h', '$h')
+            .replace('\\i', '$i')
+            .replace('\\j', '$j')
+            .replace('\\k', '$k')
+            .replace('\\l', '$l')
+            .replace('\\m', '$m')
+            .replace('\\n', '$n')
+            .replace('\\o', '$o')
+            .replace('\\p', '$p')
+            .replace('\\q', '$q')
+            .replace('\\r', '$r')
+            .replace('\\s', '$s')
+            .replace('\\t', '$t')
+            .replace('\\u', '$u')
+            .replace('\\v', '$v')
+            .replace('\\w', '$w')
+            .replace('\\x', '$x')
+            .replace('\\y', '$y')
+            .replace('\\z', '$z')
+            .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
-            publish = getMarc[key].dataValues.Subfield.replace('/', '').replace('\\a', '').replace('\\b', '').replace('\\c', '')
+            publish = getMarc[key].dataValues.Subfield
+            .replace('/', '')
+            .replace('\\a', '$a')
+            .replace('\\b', '$b')
+            .replace('\\c', '$c')
+            .replace('\\d', '$d')
+            .replace('\\e', '$e')
+            .replace('\\f', '$f')
+            .replace('\\g', '$g')
+            .replace('\\h', '$h')
+            .replace('\\i', '$i')
+            .replace('\\j', '$j')
+            .replace('\\k', '$k')
+            .replace('\\l', '$l')
+            .replace('\\m', '$m')
+            .replace('\\n', '$n')
+            .replace('\\o', '$o')
+            .replace('\\p', '$p')
+            .replace('\\q', '$q')
+            .replace('\\r', '$r')
+            .replace('\\s', '$s')
+            .replace('\\t', '$t')
+            .replace('\\u', '$u')
+            .replace('\\v', '$v')
+            .replace('\\w', '$w')
+            .replace('\\x', '$x')
+            .replace('\\y', '$y')
+            .replace('\\z', '$z')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
-            callno = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
+            callno = getMarc[key].dataValues.Subfield
+            .replace('\\a', '$a')
+            .replace('\\b', '$b')
+            .replace('\\c', '$c')
+            .replace('\\d', '$d')
+            .replace('\\e', '$e')
+            .replace('\\f', '$f')
+            .replace('\\g', '$g')
+            .replace('\\h', '$h')
+            .replace('\\i', '$i')
+            .replace('\\j', '$j')
+            .replace('\\k', '$k')
+            .replace('\\l', '$l')
+            .replace('\\m', '$m')
+            .replace('\\n', '$n')
+            .replace('\\o', '$o')
+            .replace('\\p', '$p')
+            .replace('\\q', '$q')
+            .replace('\\r', '$r')
+            .replace('\\s', '$s')
+            .replace('\\t', '$t')
+            .replace('\\u', '$u')
+            .replace('\\v', '$v')
+            .replace('\\w', '$w')
+            .replace('\\x', '$x')
+            .replace('\\y', '$y')
+            .replace('\\z', '$z')
+            .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
-            isbn = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('/', '')
+            isbn = getMarc[key].dataValues.Subfield
+            .replace('\\a', '$a')
+            .replace('\\b', '$b')
+            .replace('\\c', '$c')
+            .replace('\\d', '$d')
+            .replace('\\e', '$e')
+            .replace('\\f', '$f')
+            .replace('\\g', '$g')
+            .replace('\\h', '$h')
+            .replace('\\i', '$i')
+            .replace('\\j', '$j')
+            .replace('\\k', '$k')
+            .replace('\\l', '$l')
+            .replace('\\m', '$m')
+            .replace('\\n', '$n')
+            .replace('\\o', '$o')
+            .replace('\\p', '$p')
+            .replace('\\q', '$q')
+            .replace('\\r', '$r')
+            .replace('\\s', '$s')
+            .replace('\\t', '$t')
+            .replace('\\u', '$u')
+            .replace('\\v', '$v')
+            .replace('\\w', '$w')
+            .replace('\\x', '$x')
+            .replace('\\y', '$y')
+            .replace('\\z', '$z')
+            .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
-            picpath = getMarc[key].dataValues.Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '')
+            picpath = getMarc[key].dataValues.Subfield
+            .replace('\\a', '$a')
+            .replace('\\b', '$b')
+            .replace('\\c', '$c')
+            .replace('\\d', '$d')
+            .replace('\\e', '$e')
+            .replace('\\f', '$f')
+            .replace('\\g', '$g')
+            .replace('\\h', '$h')
+            .replace('\\i', '$i')
+            .replace('\\j', '$j')
+            .replace('\\k', '$k')
+            .replace('\\l', '$l')
+            .replace('\\m', '$m')
+            .replace('\\n', '$n')
+            .replace('\\o', '$o')
+            .replace('\\p', '$p')
+            .replace('\\q', '$q')
+            .replace('\\r', '$r')
+            .replace('\\s', '$s')
+            .replace('\\t', '$t')
+            .replace('\\u', '$u')
+            .replace('\\v', '$v')
+            .replace('\\w', '$w')
+            .replace('\\x', '$x')
+            .replace('\\y', '$y')
+            .replace('\\z', '$z')
         }
     }
     title = (title) ? title : 'NoTitleBook';
@@ -199,19 +361,27 @@ exports.list_bibdata_raw_queries = async (req, res) => {
     res.send(datafield);
 };
 
-// exports.get_MaxBibId = async (req, res) => {
-//     await databib.sequelize.query(
-//         'SELECT MAX(Bib_ID) AS maxID FROM databibs ',
-//      { type: databib.sequelize.QueryTypes.SELECT }
-//      ).then((maxBibId) =>{
-//         // Object.assign(maxBibId,{maxID : parseInt(maxID) + 1})
-//         res.send(maxBibId);
-//      })
-// };
+exports.get_MaxBibId = async (req, res) => {
+    await databib.sequelize.query(
+        'SELECT MAX(Bib_ID) AS maxID FROM databibs ',
+     { type: databib.sequelize.QueryTypes.SELECT }
+     ).then((maxBibId) =>{
+        // Object.assign(maxBibId,{maxID : parseInt(maxID) + 1})
+        res.send(maxBibId);
+     })
+};
 
 exports.create_databib_bulk = async (req, res) => {
     try {
-        await databib.bulkCreate(req.body.databib).then(outp => res.json(outp));
+        const uid = new ShortUniqueId();
+        const genBibId = uid(10);
+        const resObjBody = req.body.databib;
+        for (const key in resObjBody) {
+            Object.assign(resObjBody[key] , {"Bib_ID": genBibId})
+            console.log(resObjBody[key]);
+        }
+        console.log(resObjBody);
+        await databib.bulkCreate(resObjBody).then(outp => res.json(outp));
     } catch (e) {
         console.log(e);
         res.json(e);
