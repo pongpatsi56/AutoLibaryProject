@@ -5,15 +5,15 @@ module.exports =(sequelize,DataTypes) => {
             allowNull:false,
             validate:{
                 notEmpty:true
-            }
+            },
+            primaryKey: true
         },
         Bib_ID:{
             type:DataTypes.STRING(10) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
-            },
-            primaryKey: true
+            }
         },
         Copy:{
             type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
@@ -51,6 +51,7 @@ module.exports =(sequelize,DataTypes) => {
         databib_item.hasMany(models.databib,{
             foreignKey: 'Bib_ID'
         })
+        
     };
     return databib_item;
 }

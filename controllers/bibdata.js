@@ -377,10 +377,13 @@ exports.create_databib_bulk = async (req, res) => {
         const genBibId = uid(10);
         const resObjBody = req.body.databib;
         for (const key in resObjBody) {
-            Object.assign(resObjBody[key] , {"Bib_ID": genBibId})
-            console.log(resObjBody[key]);
+            Object.assign(resObjBody[key] , {"Bib_ID": genBibId});
+            let strSubfield ='';
+            for (const [run, value] of Object.entries(resObjBody[key]["Subfield"])) {
+                strSubfield+= `${run}${value}`;
+              }
+              resObjBody[key]["Subfield"] = strSubfield;
         }
-        console.log(resObjBody);
         await databib.bulkCreate(resObjBody).then(outp => res.json(outp));
     } catch (e) {
         console.log(e);

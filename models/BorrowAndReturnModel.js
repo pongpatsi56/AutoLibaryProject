@@ -29,6 +29,13 @@ module.exports =(sequelize,DataTypes) => {
                 notEmpty:true
             }
         },
+        Bib_ID:{
+            type:DataTypes.STRING(10) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+            allowNull:false,
+            validate:{
+                notEmpty:true
+            }
+        },
         Borrow:{
             type:DataTypes.DATE,
             allowNull:false,
@@ -38,10 +45,7 @@ module.exports =(sequelize,DataTypes) => {
         },
         Due:{
             type:DataTypes.DATE,
-            allowNull:false,
-            validate:{
-                notEmpty:true
-            }
+            defaultValue:null
         },
         Returns:{
             type:DataTypes.DATE,
@@ -51,6 +55,16 @@ module.exports =(sequelize,DataTypes) => {
             }
         },
         
-    })
+    });
+
+    borrowandreturn.associate = models =>{
+        borrowandreturn.belongsTo(models.databib_item,{
+            foreignKey: 'Barcode'
+        })
+        borrowandreturn.belongsTo(models.databib,{
+            foreignKey: 'Bib_ID'
+        })
+    };
+
     return borrowandreturn;
 }
