@@ -16,12 +16,26 @@ exports.list_databib_by_id = (req, res) => {
     }).then(databib => res.send(databib));
 };
 
-exports.list_bibitem_by_id = async(req, res) => {
-    const bibId = req.params.id;
-    const datafield = await databib.sequelize.query(
-        'SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`item_status`, `databib_item`.`item_in`, `databib_item`.`item_out`, `databib_item`.`libid_getitemin`, `databib_item`.`libid_getitemout`, `databib_item`.`item_description`, `databib_item`.`createdAt`, `databib_item`.`updatedAt`, `databibs`.`Bib_ID` AS `databibs.Bib_ID`, `databibs`.`Subfield` AS `databibs.Subfield` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibs` ON `databib_item`.`Bib_ID` = `databibs`.`Bib_ID` AND `databibs`.`Field` = 245 WHERE `databib_item`.`Bib_ID` ='+ bibId , 
-        { type: databib.sequelize.QueryTypes.SELECT })
-    res.json(datafield);
+exports.list_bibitem_by_id = async (req, res) => {
+    try {
+        if (req.params.id) {
+            await sequelize.query(
+                "SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`item_status`, `databib_item`.`item_in`, `databib_item`.`item_out`, `databib_item`.`libid_getitemin`, `databib_item`.`libid_getitemout`, `databib_item`.`item_description`, `databib_item`.`createdAt`, `databib_item`.`updatedAt`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforname`.`Subfield`,'\\\\a',''),'\\\\b',''),'\\\\c',''),'\\\\e',''),'\\\\f',''),'\\\\g',''),'\\\\h','') AS `Booknames`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforcallno`.`Subfield`,'\\\\a',''),'\\\\b',''),'\\\\c',''),'\\\\e',''),'\\\\f',''),'\\\\g',''),'\\\\h','') AS `CallNos`FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibsforname` ON `databib_item`.`Bib_ID` = `databibsforname`.`Bib_ID` AND `databibsforname`.`Field` = '245' LEFT OUTER JOIN `databibs` AS `databibsforcallno` ON `databib_item`.`Bib_ID` = `databibsforcallno`.`Bib_ID` AND `databibsforcallno`.`Field` = '082' WHERE `databib_item`.`Bib_ID` = '" + req.params.id + "'",
+                { type: sequelize.QueryTypes.SELECT })
+                .then(datafield => {
+                    if (datafield && datafield != null && datafield != '') {
+                        res.json(datafield)
+                    } else {
+                        res.json({ msg: `Data does not exist.` })
+                    }
+                });
+        } else {
+            res.json({ msg: `Request must be not empty.` })
+        }
+    } catch (e) {
+        console.log(e);
+        res.send(e);
+    }
 };
 
 exports.list_databib_all_infomation = async (req, res) => {
@@ -45,182 +59,182 @@ exports.list_databib_all_infomation = async (req, res) => {
         var title, author, publish, callno, isbn, picpath;
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(245)) {
             title = getMarc[key].dataValues.Subfield
-            .replace('\\a', '$a')
-            .replace('\\b', '$b')
-            .replace('\\c', '$c')
-            .replace('\\d', '$d')
-            .replace('\\e', '$e')
-            .replace('\\f', '$f')
-            .replace('\\g', '$g')
-            .replace('\\h', '$h')
-            .replace('\\i', '$i')
-            .replace('\\j', '$j')
-            .replace('\\k', '$k')
-            .replace('\\l', '$l')
-            .replace('\\m', '$m')
-            .replace('\\n', '$n')
-            .replace('\\o', '$o')
-            .replace('\\p', '$p')
-            .replace('\\q', '$q')
-            .replace('\\r', '$r')
-            .replace('\\s', '$s')
-            .replace('\\t', '$t')
-            .replace('\\u', '$u')
-            .replace('\\v', '$v')
-            .replace('\\w', '$w')
-            .replace('\\x', '$x')
-            .replace('\\y', '$y')
-            .replace('\\z', '$z')
-            .replace('/', '')
+                .replace('\\a', '$a')
+                .replace('\\b', '$b')
+                .replace('\\c', '$c')
+                .replace('\\d', '$d')
+                .replace('\\e', '$e')
+                .replace('\\f', '$f')
+                .replace('\\g', '$g')
+                .replace('\\h', '$h')
+                .replace('\\i', '$i')
+                .replace('\\j', '$j')
+                .replace('\\k', '$k')
+                .replace('\\l', '$l')
+                .replace('\\m', '$m')
+                .replace('\\n', '$n')
+                .replace('\\o', '$o')
+                .replace('\\p', '$p')
+                .replace('\\q', '$q')
+                .replace('\\r', '$r')
+                .replace('\\s', '$s')
+                .replace('\\t', '$t')
+                .replace('\\u', '$u')
+                .replace('\\v', '$v')
+                .replace('\\w', '$w')
+                .replace('\\x', '$x')
+                .replace('\\y', '$y')
+                .replace('\\z', '$z')
+                .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
             author = getMarc[key].dataValues.Subfield
-            .replace('\\a', '$a')
-            .replace('\\b', '$b')
-            .replace('\\c', '$c')
-            .replace('\\d', '$d')
-            .replace('\\e', '$e')
-            .replace('\\f', '$f')
-            .replace('\\g', '$g')
-            .replace('\\h', '$h')
-            .replace('\\i', '$i')
-            .replace('\\j', '$j')
-            .replace('\\k', '$k')
-            .replace('\\l', '$l')
-            .replace('\\m', '$m')
-            .replace('\\n', '$n')
-            .replace('\\o', '$o')
-            .replace('\\p', '$p')
-            .replace('\\q', '$q')
-            .replace('\\r', '$r')
-            .replace('\\s', '$s')
-            .replace('\\t', '$t')
-            .replace('\\u', '$u')
-            .replace('\\v', '$v')
-            .replace('\\w', '$w')
-            .replace('\\x', '$x')
-            .replace('\\y', '$y')
-            .replace('\\z', '$z')
-            .replace('/', '')
+                .replace('\\a', '$a')
+                .replace('\\b', '$b')
+                .replace('\\c', '$c')
+                .replace('\\d', '$d')
+                .replace('\\e', '$e')
+                .replace('\\f', '$f')
+                .replace('\\g', '$g')
+                .replace('\\h', '$h')
+                .replace('\\i', '$i')
+                .replace('\\j', '$j')
+                .replace('\\k', '$k')
+                .replace('\\l', '$l')
+                .replace('\\m', '$m')
+                .replace('\\n', '$n')
+                .replace('\\o', '$o')
+                .replace('\\p', '$p')
+                .replace('\\q', '$q')
+                .replace('\\r', '$r')
+                .replace('\\s', '$s')
+                .replace('\\t', '$t')
+                .replace('\\u', '$u')
+                .replace('\\v', '$v')
+                .replace('\\w', '$w')
+                .replace('\\x', '$x')
+                .replace('\\y', '$y')
+                .replace('\\z', '$z')
+                .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
             publish = getMarc[key].dataValues.Subfield
-            .replace('/', '')
-            .replace('\\a', '$a')
-            .replace('\\b', '$b')
-            .replace('\\c', '$c')
-            .replace('\\d', '$d')
-            .replace('\\e', '$e')
-            .replace('\\f', '$f')
-            .replace('\\g', '$g')
-            .replace('\\h', '$h')
-            .replace('\\i', '$i')
-            .replace('\\j', '$j')
-            .replace('\\k', '$k')
-            .replace('\\l', '$l')
-            .replace('\\m', '$m')
-            .replace('\\n', '$n')
-            .replace('\\o', '$o')
-            .replace('\\p', '$p')
-            .replace('\\q', '$q')
-            .replace('\\r', '$r')
-            .replace('\\s', '$s')
-            .replace('\\t', '$t')
-            .replace('\\u', '$u')
-            .replace('\\v', '$v')
-            .replace('\\w', '$w')
-            .replace('\\x', '$x')
-            .replace('\\y', '$y')
-            .replace('\\z', '$z')
+                .replace('/', '')
+                .replace('\\a', '$a')
+                .replace('\\b', '$b')
+                .replace('\\c', '$c')
+                .replace('\\d', '$d')
+                .replace('\\e', '$e')
+                .replace('\\f', '$f')
+                .replace('\\g', '$g')
+                .replace('\\h', '$h')
+                .replace('\\i', '$i')
+                .replace('\\j', '$j')
+                .replace('\\k', '$k')
+                .replace('\\l', '$l')
+                .replace('\\m', '$m')
+                .replace('\\n', '$n')
+                .replace('\\o', '$o')
+                .replace('\\p', '$p')
+                .replace('\\q', '$q')
+                .replace('\\r', '$r')
+                .replace('\\s', '$s')
+                .replace('\\t', '$t')
+                .replace('\\u', '$u')
+                .replace('\\v', '$v')
+                .replace('\\w', '$w')
+                .replace('\\x', '$x')
+                .replace('\\y', '$y')
+                .replace('\\z', '$z')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
             callno = getMarc[key].dataValues.Subfield
-            .replace('\\a', '$a')
-            .replace('\\b', '$b')
-            .replace('\\c', '$c')
-            .replace('\\d', '$d')
-            .replace('\\e', '$e')
-            .replace('\\f', '$f')
-            .replace('\\g', '$g')
-            .replace('\\h', '$h')
-            .replace('\\i', '$i')
-            .replace('\\j', '$j')
-            .replace('\\k', '$k')
-            .replace('\\l', '$l')
-            .replace('\\m', '$m')
-            .replace('\\n', '$n')
-            .replace('\\o', '$o')
-            .replace('\\p', '$p')
-            .replace('\\q', '$q')
-            .replace('\\r', '$r')
-            .replace('\\s', '$s')
-            .replace('\\t', '$t')
-            .replace('\\u', '$u')
-            .replace('\\v', '$v')
-            .replace('\\w', '$w')
-            .replace('\\x', '$x')
-            .replace('\\y', '$y')
-            .replace('\\z', '$z')
-            .replace('/', '')
+                .replace('\\a', '$a')
+                .replace('\\b', '$b')
+                .replace('\\c', '$c')
+                .replace('\\d', '$d')
+                .replace('\\e', '$e')
+                .replace('\\f', '$f')
+                .replace('\\g', '$g')
+                .replace('\\h', '$h')
+                .replace('\\i', '$i')
+                .replace('\\j', '$j')
+                .replace('\\k', '$k')
+                .replace('\\l', '$l')
+                .replace('\\m', '$m')
+                .replace('\\n', '$n')
+                .replace('\\o', '$o')
+                .replace('\\p', '$p')
+                .replace('\\q', '$q')
+                .replace('\\r', '$r')
+                .replace('\\s', '$s')
+                .replace('\\t', '$t')
+                .replace('\\u', '$u')
+                .replace('\\v', '$v')
+                .replace('\\w', '$w')
+                .replace('\\x', '$x')
+                .replace('\\y', '$y')
+                .replace('\\z', '$z')
+                .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
             isbn = getMarc[key].dataValues.Subfield
-            .replace('\\a', '$a')
-            .replace('\\b', '$b')
-            .replace('\\c', '$c')
-            .replace('\\d', '$d')
-            .replace('\\e', '$e')
-            .replace('\\f', '$f')
-            .replace('\\g', '$g')
-            .replace('\\h', '$h')
-            .replace('\\i', '$i')
-            .replace('\\j', '$j')
-            .replace('\\k', '$k')
-            .replace('\\l', '$l')
-            .replace('\\m', '$m')
-            .replace('\\n', '$n')
-            .replace('\\o', '$o')
-            .replace('\\p', '$p')
-            .replace('\\q', '$q')
-            .replace('\\r', '$r')
-            .replace('\\s', '$s')
-            .replace('\\t', '$t')
-            .replace('\\u', '$u')
-            .replace('\\v', '$v')
-            .replace('\\w', '$w')
-            .replace('\\x', '$x')
-            .replace('\\y', '$y')
-            .replace('\\z', '$z')
-            .replace('/', '')
+                .replace('\\a', '$a')
+                .replace('\\b', '$b')
+                .replace('\\c', '$c')
+                .replace('\\d', '$d')
+                .replace('\\e', '$e')
+                .replace('\\f', '$f')
+                .replace('\\g', '$g')
+                .replace('\\h', '$h')
+                .replace('\\i', '$i')
+                .replace('\\j', '$j')
+                .replace('\\k', '$k')
+                .replace('\\l', '$l')
+                .replace('\\m', '$m')
+                .replace('\\n', '$n')
+                .replace('\\o', '$o')
+                .replace('\\p', '$p')
+                .replace('\\q', '$q')
+                .replace('\\r', '$r')
+                .replace('\\s', '$s')
+                .replace('\\t', '$t')
+                .replace('\\u', '$u')
+                .replace('\\v', '$v')
+                .replace('\\w', '$w')
+                .replace('\\x', '$x')
+                .replace('\\y', '$y')
+                .replace('\\z', '$z')
+                .replace('/', '')
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
             picpath = getMarc[key].dataValues.Subfield
-            .replace('\\a', '$a')
-            .replace('\\b', '$b')
-            .replace('\\c', '$c')
-            .replace('\\d', '$d')
-            .replace('\\e', '$e')
-            .replace('\\f', '$f')
-            .replace('\\g', '$g')
-            .replace('\\h', '$h')
-            .replace('\\i', '$i')
-            .replace('\\j', '$j')
-            .replace('\\k', '$k')
-            .replace('\\l', '$l')
-            .replace('\\m', '$m')
-            .replace('\\n', '$n')
-            .replace('\\o', '$o')
-            .replace('\\p', '$p')
-            .replace('\\q', '$q')
-            .replace('\\r', '$r')
-            .replace('\\s', '$s')
-            .replace('\\t', '$t')
-            .replace('\\u', '$u')
-            .replace('\\v', '$v')
-            .replace('\\w', '$w')
-            .replace('\\x', '$x')
-            .replace('\\y', '$y')
-            .replace('\\z', '$z')
+                .replace('\\a', '$a')
+                .replace('\\b', '$b')
+                .replace('\\c', '$c')
+                .replace('\\d', '$d')
+                .replace('\\e', '$e')
+                .replace('\\f', '$f')
+                .replace('\\g', '$g')
+                .replace('\\h', '$h')
+                .replace('\\i', '$i')
+                .replace('\\j', '$j')
+                .replace('\\k', '$k')
+                .replace('\\l', '$l')
+                .replace('\\m', '$m')
+                .replace('\\n', '$n')
+                .replace('\\o', '$o')
+                .replace('\\p', '$p')
+                .replace('\\q', '$q')
+                .replace('\\r', '$r')
+                .replace('\\s', '$s')
+                .replace('\\t', '$t')
+                .replace('\\u', '$u')
+                .replace('\\v', '$v')
+                .replace('\\w', '$w')
+                .replace('\\x', '$x')
+                .replace('\\y', '$y')
+                .replace('\\z', '$z')
         }
     }
     title = (title) ? title : 'NoTitleBook';
@@ -242,33 +256,33 @@ exports.list_databib_all_infomation = async (req, res) => {
     ///// region MARC /////
     for (const key in Object.keys(getMarc)) {
         getMarc[key].dataValues.Subfield = getMarc[key].dataValues.Subfield
-        .replace('\\a', '$a')
-        .replace('\\b', '$b')
-        .replace('\\c', '$c')
-        .replace('\\d', '$d')
-        .replace('\\e', '$e')
-        .replace('\\f', '$f')
-        .replace('\\g', '$g')
-        .replace('\\h', '$h')
-        .replace('\\i', '$i')
-        .replace('\\j', '$j')
-        .replace('\\k', '$k')
-        .replace('\\l', '$l')
-        .replace('\\m', '$m')
-        .replace('\\n', '$n')
-        .replace('\\o', '$o')
-        .replace('\\p', '$p')
-        .replace('\\q', '$q')
-        .replace('\\r', '$r')
-        .replace('\\s', '$s')
-        .replace('\\t', '$t')
-        .replace('\\u', '$u')
-        .replace('\\v', '$v')
-        .replace('\\w', '$w')
-        .replace('\\x', '$x')
-        .replace('\\y', '$y')
-        .replace('\\z', '$z')
-        .replace('/', '')
+            .replace('\\a', '$a')
+            .replace('\\b', '$b')
+            .replace('\\c', '$c')
+            .replace('\\d', '$d')
+            .replace('\\e', '$e')
+            .replace('\\f', '$f')
+            .replace('\\g', '$g')
+            .replace('\\h', '$h')
+            .replace('\\i', '$i')
+            .replace('\\j', '$j')
+            .replace('\\k', '$k')
+            .replace('\\l', '$l')
+            .replace('\\m', '$m')
+            .replace('\\n', '$n')
+            .replace('\\o', '$o')
+            .replace('\\p', '$p')
+            .replace('\\q', '$q')
+            .replace('\\r', '$r')
+            .replace('\\s', '$s')
+            .replace('\\t', '$t')
+            .replace('\\u', '$u')
+            .replace('\\v', '$v')
+            .replace('\\w', '$w')
+            .replace('\\x', '$x')
+            .replace('\\y', '$y')
+            .replace('\\z', '$z')
+            .replace('/', '')
     }
     ///////////////////////
 
@@ -354,8 +368,12 @@ exports.list_databib_searching_pagination = async (req, res) => {
         countPage: Math.ceil(ObjDataBiball.length / limit),
         limit: limit
     }
-    Results.Results = ObjDataBiball.slice(StartIndex, EndIndex)
     console.log(ObjDataBiball);
+    if (ObjDataBiball && ObjDataBiball != null && ObjDataBiball != '') {
+        Results.Results = ObjDataBiball.slice(StartIndex, EndIndex)
+    } else {
+        Results.Results = { msg: `<b>${Keyword}</b> is not found.` };
+    }
     res.send(Results);
 };
 
@@ -367,11 +385,11 @@ exports.list_bibdata_raw_queries = async (req, res) => {
 exports.get_MaxBibId = async (req, res) => {
     await databib.sequelize.query(
         'SELECT MAX(Bib_ID) AS maxID FROM databibs ',
-     { type: databib.sequelize.QueryTypes.SELECT }
-     ).then((maxBibId) =>{
+        { type: databib.sequelize.QueryTypes.SELECT }
+    ).then((maxBibId) => {
         // Object.assign(maxBibId,{maxID : parseInt(maxID) + 1})
         res.send(maxBibId);
-     })
+    })
 };
 
 exports.create_databib_bulk = async (req, res) => {
@@ -379,15 +397,19 @@ exports.create_databib_bulk = async (req, res) => {
         const uid = new ShortUniqueId();
         const genBibId = uid(10);
         const resObjBody = req.body.databib;
-        for (const key in resObjBody) {
-            Object.assign(resObjBody[key] , {"Bib_ID": genBibId});
-            let strSubfield ='';
-            for (const [run, value] of Object.entries(resObjBody[key]["Subfield"])) {
-                strSubfield+= `${run}${value}`;
-              }
-              resObjBody[key]["Subfield"] = strSubfield;
+        if (resObjBody && resObjBody != null && resObjBody != '') {
+            for (const key in resObjBody) {
+                Object.assign(resObjBody[key], { "Bib_ID": genBibId });
+                let strSubfield = '';
+                for (const [run, value] of Object.entries(resObjBody[key]["Subfield"])) {
+                    strSubfield += `${run}${value}`;
+                }
+                resObjBody[key]["Subfield"] = strSubfield;
+            }
+            await databib.bulkCreate(resObjBody).then(outp => res.json(outp));
+        } else {
+            res.json({ msg: `Bad Request.` })
         }
-        await databib.bulkCreate(resObjBody).then(outp => res.json(outp));
     } catch (e) {
         console.log(e);
         res.json(e);
@@ -412,6 +434,41 @@ exports.create_databib = (req, res) => {
         res.send(req.body);
     } catch (error) {
         console.log('Error:', error);
+    }
+};
+
+exports.create_databib_item = async (req, res) => {
+    try {
+        const { brcd, bbid, copy, lbin, } = req.body;
+        let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
+        const chkDataBib = await databib.findOne({ where: { Bib_ID: bbid } });
+        const getBooknames = await databib.findOne({ attributes: ['Subfield'], where: { Bib_ID: bbid, Field: '245' } });
+        let booknames = (getBooknames && getBooknames != null && getBooknames != '') ? JSON.stringify(getBooknames["Subfield"]) : bbid;
+        if (chkDataBib && chkDataBib != null && chkDataBib != '') {
+            databib_item.create({
+                Barcode: brcd,
+                Bib_ID: bbid,
+                Copy: copy,
+                item_status: 'Available',
+                item_in: datenow,
+                item_out: null,
+                libid_getitemin: lbin,
+                libid_getitemout: null,
+                item_description: null
+            }).then(responses => {
+                res.json({
+                    status: 200,
+                    Results: responses,
+                    msg: `Item of ${booknames} has been Added.`
+                })
+            });
+        } else {
+            res.json({ msg: `This Bibliography has not found.` });
+        }
+    } catch (error) {
+        console.log('Error:', error);
+        res.send(error);
+
     }
 };
 

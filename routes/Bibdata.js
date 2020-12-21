@@ -29,6 +29,9 @@ router.post("/bulkadd", BibDataControllers.create_databib_bulk);
 
 router.post("/new", BibDataControllers.create_databib);
 
+// Add databib item
+router.post("/addnewitem", BibDataControllers.create_databib_item);
+
 // edit a databib
 router.put("/edit", BibDataControllers.update_databib);
 
