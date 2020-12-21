@@ -16,12 +16,12 @@ exports.list_databib_by_id = (req, res) => {
     }).then(databib => res.send(databib));
 };
 
-exports.list_bibitem_by_id = (req, res) => {
-    databib_item.findAll({
-        where: {
-            Bib_ID: req.params.id
-        }
-    }).then(databibitem => res.send(databibitem));
+exports.list_bibitem_by_id = async(req, res) => {
+    const bibId = req.params.id;
+    const datafield = await databib.sequelize.query(
+        'SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`item_status`, `databib_item`.`item_in`, `databib_item`.`item_out`, `databib_item`.`libid_getitemin`, `databib_item`.`libid_getitemout`, `databib_item`.`item_description`, `databib_item`.`createdAt`, `databib_item`.`updatedAt`, `databibs`.`Bib_ID` AS `databibs.Bib_ID`, `databibs`.`Subfield` AS `databibs.Subfield` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibs` ON `databib_item`.`Bib_ID` = `databibs`.`Bib_ID` AND `databibs`.`Field` = 245 WHERE `databib_item`.`Bib_ID` ='+ bibId , 
+        { type: databib.sequelize.QueryTypes.SELECT })
+    res.json(datafield);
 };
 
 exports.list_databib_all_infomation = async (req, res) => {
@@ -312,10 +312,12 @@ exports.list_databib_searching_pagination = async (req, res) => {
         var getPublishBib = await databib.findOne({ attributes: [['Subfield', 'Publish']], where: { Field: '260', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getCallNoBib = await databib.findOne({ attributes: [['Subfield', 'CallNo']], where: { Field: '082', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getPicPath = await databib.findOne({ attributes: [['Subfield', 'PicPath']], where: { Field: '960', Bib_ID: GetAllBibID[key].Bib_ID } });
+        var getISBN = await databib.findOne({ attributes: [['Subfield', 'ISBN']], where: { Field: '020', Bib_ID: GetAllBibID[key].Bib_ID } });
         if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var title = '-';
         if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var author = '-';
         if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var publish = '-';
         if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var callno = '-';
+        if (getISBN) { var isbn = getISBN.toJSON().ISBN.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var isbn = '-';
         if (getPicPath) {
             var picpath = getPicPath.toJSON().PicPath.replace('\\a', '');
             if (picpath == '') {
@@ -329,6 +331,7 @@ exports.list_databib_searching_pagination = async (req, res) => {
             Author: author,
             Publish: publish,
             CallNo: callno,
+            ISBN: isbn,
             PicPath: picpath
         };
         ObjDataBiball.push(ObjDataBib);

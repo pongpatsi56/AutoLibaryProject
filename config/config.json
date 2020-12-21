@@ -20,6 +20,13 @@
     "host": "localhost",
     "dialect": "mysql"
   },
+  "localhost": {
+    "username": "root",
+    "password": "",
+    "database": "autolibcisbase",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
   "test": {
     "username": "root",
     "password": null,
