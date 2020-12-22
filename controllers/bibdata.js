@@ -1,6 +1,7 @@
 const { databib_item, databib, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const { default: ShortUniqueId } = require('short-unique-id')
+const helper = require('../helper/stringHelper');
 const moment = require('moment');
 
 exports.list_all_bib = (req, res) => {
@@ -47,7 +48,7 @@ exports.list_databib_all_infomation = async (req, res) => {
         order: ['Field']
     });
     var getItemBook = await databib_item.findAll({
-        attributes: ['Bib_ID', 'Barcode', 'Copy'],
+        attributes: ['Bib_ID', 'Barcode', 'Copy','item_status'],
         where: { Bib_ID: req.params.id }
     });
     var getCallNo = await databib.findOne({
@@ -58,183 +59,22 @@ exports.list_databib_all_infomation = async (req, res) => {
     for (const key in Object.keys(getMarc)) {
         var title, author, publish, callno, isbn, picpath;
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(245)) {
-            title = getMarc[key].dataValues.Subfield
-                .replace('\\a', '$a')
-                .replace('\\b', '$b')
-                .replace('\\c', '$c')
-                .replace('\\d', '$d')
-                .replace('\\e', '$e')
-                .replace('\\f', '$f')
-                .replace('\\g', '$g')
-                .replace('\\h', '$h')
-                .replace('\\i', '$i')
-                .replace('\\j', '$j')
-                .replace('\\k', '$k')
-                .replace('\\l', '$l')
-                .replace('\\m', '$m')
-                .replace('\\n', '$n')
-                .replace('\\o', '$o')
-                .replace('\\p', '$p')
-                .replace('\\q', '$q')
-                .replace('\\r', '$r')
-                .replace('\\s', '$s')
-                .replace('\\t', '$t')
-                .replace('\\u', '$u')
-                .replace('\\v', '$v')
-                .replace('\\w', '$w')
-                .replace('\\x', '$x')
-                .replace('\\y', '$y')
-                .replace('\\z', '$z')
-                .replace('/', '')
+            title = helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
-            author = getMarc[key].dataValues.Subfield
-                .replace('\\a', '$a')
-                .replace('\\b', '$b')
-                .replace('\\c', '$c')
-                .replace('\\d', '$d')
-                .replace('\\e', '$e')
-                .replace('\\f', '$f')
-                .replace('\\g', '$g')
-                .replace('\\h', '$h')
-                .replace('\\i', '$i')
-                .replace('\\j', '$j')
-                .replace('\\k', '$k')
-                .replace('\\l', '$l')
-                .replace('\\m', '$m')
-                .replace('\\n', '$n')
-                .replace('\\o', '$o')
-                .replace('\\p', '$p')
-                .replace('\\q', '$q')
-                .replace('\\r', '$r')
-                .replace('\\s', '$s')
-                .replace('\\t', '$t')
-                .replace('\\u', '$u')
-                .replace('\\v', '$v')
-                .replace('\\w', '$w')
-                .replace('\\x', '$x')
-                .replace('\\y', '$y')
-                .replace('\\z', '$z')
-                .replace('/', '')
+            author =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
-            publish = getMarc[key].dataValues.Subfield
-                .replace('/', '')
-                .replace('\\a', '$a')
-                .replace('\\b', '$b')
-                .replace('\\c', '$c')
-                .replace('\\d', '$d')
-                .replace('\\e', '$e')
-                .replace('\\f', '$f')
-                .replace('\\g', '$g')
-                .replace('\\h', '$h')
-                .replace('\\i', '$i')
-                .replace('\\j', '$j')
-                .replace('\\k', '$k')
-                .replace('\\l', '$l')
-                .replace('\\m', '$m')
-                .replace('\\n', '$n')
-                .replace('\\o', '$o')
-                .replace('\\p', '$p')
-                .replace('\\q', '$q')
-                .replace('\\r', '$r')
-                .replace('\\s', '$s')
-                .replace('\\t', '$t')
-                .replace('\\u', '$u')
-                .replace('\\v', '$v')
-                .replace('\\w', '$w')
-                .replace('\\x', '$x')
-                .replace('\\y', '$y')
-                .replace('\\z', '$z')
+            publish =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
-            callno = getMarc[key].dataValues.Subfield
-                .replace('\\a', '$a')
-                .replace('\\b', '$b')
-                .replace('\\c', '$c')
-                .replace('\\d', '$d')
-                .replace('\\e', '$e')
-                .replace('\\f', '$f')
-                .replace('\\g', '$g')
-                .replace('\\h', '$h')
-                .replace('\\i', '$i')
-                .replace('\\j', '$j')
-                .replace('\\k', '$k')
-                .replace('\\l', '$l')
-                .replace('\\m', '$m')
-                .replace('\\n', '$n')
-                .replace('\\o', '$o')
-                .replace('\\p', '$p')
-                .replace('\\q', '$q')
-                .replace('\\r', '$r')
-                .replace('\\s', '$s')
-                .replace('\\t', '$t')
-                .replace('\\u', '$u')
-                .replace('\\v', '$v')
-                .replace('\\w', '$w')
-                .replace('\\x', '$x')
-                .replace('\\y', '$y')
-                .replace('\\z', '$z')
-                .replace('/', '')
+            callno =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
-            isbn = getMarc[key].dataValues.Subfield
-                .replace('\\a', '$a')
-                .replace('\\b', '$b')
-                .replace('\\c', '$c')
-                .replace('\\d', '$d')
-                .replace('\\e', '$e')
-                .replace('\\f', '$f')
-                .replace('\\g', '$g')
-                .replace('\\h', '$h')
-                .replace('\\i', '$i')
-                .replace('\\j', '$j')
-                .replace('\\k', '$k')
-                .replace('\\l', '$l')
-                .replace('\\m', '$m')
-                .replace('\\n', '$n')
-                .replace('\\o', '$o')
-                .replace('\\p', '$p')
-                .replace('\\q', '$q')
-                .replace('\\r', '$r')
-                .replace('\\s', '$s')
-                .replace('\\t', '$t')
-                .replace('\\u', '$u')
-                .replace('\\v', '$v')
-                .replace('\\w', '$w')
-                .replace('\\x', '$x')
-                .replace('\\y', '$y')
-                .replace('\\z', '$z')
-                .replace('/', '')
+            isbn =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
-            picpath = getMarc[key].dataValues.Subfield
-                .replace('\\a', '$a')
-                .replace('\\b', '$b')
-                .replace('\\c', '$c')
-                .replace('\\d', '$d')
-                .replace('\\e', '$e')
-                .replace('\\f', '$f')
-                .replace('\\g', '$g')
-                .replace('\\h', '$h')
-                .replace('\\i', '$i')
-                .replace('\\j', '$j')
-                .replace('\\k', '$k')
-                .replace('\\l', '$l')
-                .replace('\\m', '$m')
-                .replace('\\n', '$n')
-                .replace('\\o', '$o')
-                .replace('\\p', '$p')
-                .replace('\\q', '$q')
-                .replace('\\r', '$r')
-                .replace('\\s', '$s')
-                .replace('\\t', '$t')
-                .replace('\\u', '$u')
-                .replace('\\v', '$v')
-                .replace('\\w', '$w')
-                .replace('\\x', '$x')
-                .replace('\\y', '$y')
-                .replace('\\z', '$z')
+            picpath =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield)
         }
     }
     title = (title) ? title : 'NoTitleBook';
@@ -255,34 +95,7 @@ exports.list_databib_all_infomation = async (req, res) => {
 
     ///// region MARC /////
     for (const key in Object.keys(getMarc)) {
-        getMarc[key].dataValues.Subfield = getMarc[key].dataValues.Subfield
-            .replace('\\a', '$a')
-            .replace('\\b', '$b')
-            .replace('\\c', '$c')
-            .replace('\\d', '$d')
-            .replace('\\e', '$e')
-            .replace('\\f', '$f')
-            .replace('\\g', '$g')
-            .replace('\\h', '$h')
-            .replace('\\i', '$i')
-            .replace('\\j', '$j')
-            .replace('\\k', '$k')
-            .replace('\\l', '$l')
-            .replace('\\m', '$m')
-            .replace('\\n', '$n')
-            .replace('\\o', '$o')
-            .replace('\\p', '$p')
-            .replace('\\q', '$q')
-            .replace('\\r', '$r')
-            .replace('\\s', '$s')
-            .replace('\\t', '$t')
-            .replace('\\u', '$u')
-            .replace('\\v', '$v')
-            .replace('\\w', '$w')
-            .replace('\\x', '$x')
-            .replace('\\y', '$y')
-            .replace('\\z', '$z')
-            .replace('/', '')
+        getMarc[key].dataValues.Subfield =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
     }
     ///////////////////////
 
@@ -290,7 +103,7 @@ exports.list_databib_all_infomation = async (req, res) => {
     for (const run in Object.keys(getItemBook)) {
         if (getItemBook[run].dataValues.Copy == null || getItemBook[run].dataValues.Copy == undefined) { getItemBook[run].dataValues.Copy = '-' }
         if (getCallNo) {
-            getItemBook[run].dataValues.CallNo = getCallNo.toJSON().Subfield.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('/', '');
+            getItemBook[run].dataValues.CallNo =  helper.subfReplaceToBlank(getCallNo.toJSON().Subfield.replace('/', ''));
         } else {
             getItemBook[run].dataValues.CallNo = '-';
         }
@@ -364,11 +177,12 @@ exports.list_databib_searching_pagination = async (req, res) => {
         }
     }
     Results.pagiInfo = {
+        Total: ObjDataBiball.length,
         currentPage: Page,
         countPage: Math.ceil(ObjDataBiball.length / limit),
         limit: limit
     }
-    console.log(ObjDataBiball);
+    // console.log(ObjDataBiball);
     if (ObjDataBiball && ObjDataBiball != null && ObjDataBiball != '') {
         Results.Results = ObjDataBiball.slice(StartIndex, EndIndex)
     } else {
@@ -459,7 +273,7 @@ exports.create_databib_item = async (req, res) => {
                 res.json({
                     status: 200,
                     Results: responses,
-                    msg: `Item of ${booknames} has been Added.`
+                    msg: `Item of ${helper.subfReplaceToBlank(booknames)} has been Added.`
                 })
             });
         } else {

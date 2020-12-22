@@ -6,6 +6,7 @@ module.exports =(sequelize,DataTypes) => {
             validate:{
                 notEmpty:true
             },
+            autoIncrement: true,
             primaryKey: true
         },
         Librarian_ID:{
