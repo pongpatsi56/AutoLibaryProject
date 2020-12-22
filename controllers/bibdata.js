@@ -1,6 +1,9 @@
 const { databib_item, databib, sequelize } = require('../models');
 const { Op } = require('sequelize');
-const { default: ShortUniqueId } = require('short-unique-id')
+const { default: ShortUniqueId } = require('short-unique-id');
+const formidable = require('formidable');
+const path = require('path');
+const uploadDir = 'uploads';
 const helper = require('../helper/stringHelper');
 const moment = require('moment');
 
@@ -227,6 +230,27 @@ exports.create_databib_bulk = async (req, res) => {
     } catch (e) {
         console.log(e);
         res.json(e);
+    }
+};
+
+exports.Upload_coverbook_img = (req, res) => {
+    try {
+        var form = new formidable.IncomingForm();
+        form.parse(req);
+        form.on('fileBegin', (name, file) => {
+            const [fileName, fileExt] = file.name.split('.')
+            file.path = path.join('uploads', `${fileName}_${new Date().getTime()}.${fileExt}`)
+            console.log('Uploaded ' + file.path);
+            // databib.create({
+            //     Bib_ID: res.body.bibId,
+            //     Field: res.body.field,
+            //     Subfield: '\\a' + file.path
+            // }).then(outp => res.json(outp));
+        })
+        res.json('Upload Success.');
+    } catch (error) {
+        console.log(error);
+        res.json(error);
     }
 };
 

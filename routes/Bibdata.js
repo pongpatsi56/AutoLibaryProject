@@ -26,6 +26,8 @@ router.get("/maxbibid", BibDataControllers.get_MaxBibId);
 
 // ADD Book
 router.post("/bulkadd", BibDataControllers.create_databib_bulk);
+router.post("/uploadimg", BibDataControllers.Upload_coverbook_img);
+
 
 router.post("/new", BibDataControllers.create_databib);
 
