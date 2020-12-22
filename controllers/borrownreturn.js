@@ -1,21 +1,22 @@
-const { borrowandreturn, databib_item, databib ,sequelize} = require('../models');
+const { borrowandreturn, databib_item, databib, sequelize } = require('../models');
 const helper = require('../helper/stringHelper');
+const moment = require('moment');
 
 exports.List_BorrowAndReturn_Data = async (req, res) => {
     try {
         const dataBnR = await borrowandreturn.findAll({
-            attributes: ['Librarian_ID','Member_ID','Barcode','Borrow', 'Due','Returns'],
+            attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
             include: [
                 {
                     model: databib_item,
                     attributes: ['Barcode', 'item_status'],
-                    required:false
+                    required: false
                 },
                 {
                     model: databib,
                     attributes: ['Subfield'],
                     where: { Field: '245' },
-                    required:false
+                    required: false
                 }
             ],
             where: {
@@ -28,34 +29,71 @@ exports.List_BorrowAndReturn_Data = async (req, res) => {
     }
 };
 
-exports.create_BorrowAndReturn_Data = async (req, res) => {
+exports.create_Borrow_Data = async (req, res) => {
     try {
-        const { libid, memid, brcd, lbin, } = req.body;
+        const { libid, memid, brcd } = req.body;
         let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
-        const chkDataBib = await databib.findOne({ where: { Bib_ID: bbid } });
-        const getBooknames = await databib.findOne({ attributes: ['Subfield'], where: { Bib_ID: bbid, Field: '245' } });
-        let booknames = (getBooknames && getBooknames != null && getBooknames != '') ? JSON.stringify(getBooknames["Subfield"]) : bbid;
-        if (chkDataBib && chkDataBib != null && chkDataBib != '') {
-            databib_item.create({
+        let date7day = moment(datenow).add(7, 'days').format('YYYY-MM-DD');
+        const getBibid = await databib_item.findOne({ attributes: ['Bib_ID'], where: { Barcode: brcd } });
+
+        // res.send(`${libid, memid, brcd} :: ${datenow} :: ${date7day} :: ${getBibid['Bib_ID']}`);
+        if (memid != null && memid != '' && brcd != null && brcd != '') {
+            await borrowandreturn.create({
+                Librarian_ID: libid,
+                Member_ID: memid,
                 Barcode: brcd,
-                Bib_ID: bbid,
-                Copy: copy,
-                item_status: 'Available',
+                Borrow: datenow,
                 item_in: datenow,
-                item_out: null,
-                libid_getitemin: lbin,
-                libid_getitemout: null,
-                item_description: null
-            }).then(responses => {
-                res.json({
-                    status: 200,
-                    Results: responses,
-                    msg: `Item of ${helper.subfReplaceToBlank(booknames)} has been Added.`
+                Due: null,
+                Returns: date7day,
+                Bib_ID: getBibid['Bib_ID']
+            }).then(rescreate => {
+                databib_item.update(
+                    { item_status: 'Not Available' },
+                    { where: { Barcode: brcd } }
+                ).then(resupdate => {
+                    res.json({
+                        status: 200,
+                        Results: { 'CreateResult': rescreate, 'UpdateResult': resupdate },
+                        msg: `Item ${brcd} Borrowed by ${memid}`
+                    })
                 })
             });
         } else {
-            res.json({ msg: `This Bibliography has not found.` });
+            res.json({ msg: `Books or Member must not be Empty` });
         }
+
+    } catch (error) {
+        console.log('Error:', error);
+        res.send(error);
+
+    }
+};
+
+exports.update_Return_Data = async (req, res) => {
+    try {
+        const { brcd } = req.body;
+        let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
+        if (brcd != null && brcd != '') {
+            const updBnR = await borrowandreturn.update(
+                { Due: datenow },
+                { where: { Barcode: brcd } }
+            );
+            const updDBI = await databib_item.update(
+                { item_status: 'Available' },
+                { where: { Barcode: brcd } }
+            );
+            if (updBnR && updDBI) {
+                res.json({
+                    status: 200,
+                    Results: { 'BorrownReturnResult': updBnR, 'DatabibItemResult': updDBI },
+                    msg: `Item ${brcd} Borrowed by ${memid}`
+                })
+            } else { res.json({ msg: `Updating some mistakes.` }) }
+        } else {
+            res.json({ msg: `BAD REQUEST.` });
+        }
+
     } catch (error) {
         console.log('Error:', error);
         res.send(error);

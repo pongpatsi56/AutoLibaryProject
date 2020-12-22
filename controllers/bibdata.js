@@ -59,19 +59,19 @@ exports.list_databib_all_infomation = async (req, res) => {
     for (const key in Object.keys(getMarc)) {
         var title, author, publish, callno, isbn, picpath;
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(245)) {
-            title = helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
+            title = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
-            author =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
+            author =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
-            publish =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
+            publish =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
-            callno =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
+            callno =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
-            isbn =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
+            isbn =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
             picpath =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield)
@@ -95,7 +95,7 @@ exports.list_databib_all_infomation = async (req, res) => {
 
     ///// region MARC /////
     for (const key in Object.keys(getMarc)) {
-        getMarc[key].dataValues.Subfield =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield.replace('/', ''))
+        getMarc[key].dataValues.Subfield =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield)
     }
     ///////////////////////
 
