@@ -332,19 +332,36 @@ exports.create_databib_item = async (req, res) => {
 
 exports.update_databib = async (req, res) => {
     try {
-        const { databib_ID, subfield, indc1, indc2 } = req.body;
-        await databib.update(
-            {
-                Indicator1: indc1,
-                Indicator2: indc2,
-                Subfield: subfield
-            },
-            {
-                where: {
-                    databib_ID: databib_ID
+        const edit_data = req.body.databib;
+        if (edit_data && edit_data != null && edit_data != '') {
+            for (const key in edit_data) {
+                if (edit_data[key]["Subfield"] != '' && edit_data[key]["Subfield"] != null && edit_data[key]["Subfield"] != undefined && JSON.stringify(edit_data[key]["Subfield"]) !== JSON.stringify({})) {
+                    let strSubfield = '';
+                    for (const [run, value] of Object.entries(edit_data[key]["Subfield"])) {
+                        strSubfield += `${run}${value}`;
+                    }
+                    edit_data[key]["Subfield"] = strSubfield;
+                } else {
+                    delete edit_data[key]["Subfield"]
                 }
+                await databib.update(
+                    {
+                        Indicator1: edit_data[key]["Indicator1"],
+                        Indicator2: edit_data[key]["Indicator2"],
+                        Subfield: edit_data[key]["Subfield"]
+                    },
+                    {
+                        where: {
+                            databib_ID: edit_data[key]["databib_ID"]
+                        }
+                    }
+                ).then(res.json('Databib Updated.'))
             }
-        ).then(res.json(await databib.findAll({ where: { databib_ID: databib_ID } })))
+            console.log(edit_data);
+            res.json(edit_data);
+        } else {
+            res.json({ msg: `Bad Request.` })
+        }
     } catch (e) {
         console.log(e);
     }
