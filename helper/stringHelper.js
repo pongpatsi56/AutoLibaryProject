@@ -27,42 +27,41 @@ exports.subfReplaceToPeso = (paramstr) => {
         .replace('\\z', '$z')
 }
 exports.subfReplaceToBlank = (paramstr) => {
-    return paramstr.replace('\\a', '')
-        .replace('\\b', '')
-        .replace('\\c', '')
-        .replace('\\d', '')
-        .replace('\\e', '')
-        .replace('\\f', '')
-        .replace('\\g', '')
-        .replace('\\h', '')
-        .replace('\\i', '')
-        .replace('\\j', '')
-        .replace('\\k', '')
-        .replace('\\l', '')
-        .replace('\\m', '')
-        .replace('\\n', '')
-        .replace('\\o', '')
-        .replace('\\p', '')
-        .replace('\\q', '')
-        .replace('\\r', '')
-        .replace('\\s', '')
-        .replace('\\t', '')
-        .replace('\\u', '')
-        .replace('\\v', '')
-        .replace('\\w', '')
-        .replace('\\x', '')
-        .replace('\\y', '')
-        .replace('\\z', '')
+    return paramstr.replace('$a', '')
+        .replace('$b', '')
+        .replace('$c', '')
+        .replace('$d', '')
+        .replace('$e', '')
+        .replace('$f', '')
+        .replace('$g', '')
+        .replace('$h', '')
+        .replace('$i', '')
+        .replace('$j', '')
+        .replace('$k', '')
+        .replace('$l', '')
+        .replace('$m', '')
+        .replace('$n', '')
+        .replace('$o', '')
+        .replace('$p', '')
+        .replace('$q', '')
+        .replace('$r', '')
+        .replace('$s', '')
+        .replace('$t', '')
+        .replace('$u', '')
+        .replace('$v', '')
+        .replace('$w', '')
+        .replace('$x', '')
+        .replace('$y', '')
+        .replace('$z', '')
 }
 exports.subfloopToObject = (paramstr) => {
-    console.log(paramstr.indexOf('\\'));
-    if (paramstr.indexOf('\\') != -1) {
-        const subf = paramstr.split('\\');
+    if (paramstr.indexOf('$') != -1) {
+        const subf = paramstr.split('$');
         const obj = {};
         subf.forEach(element => {
-            Object.assign(obj, { ['\\' + element.substring(element.lenght, 1)]: element.substring(1, element.lenght) })
+            Object.assign(obj, { ['$' + element.substring(element.lenght, 1)]: element.substring(1, element.lenght) })
         });
-        delete obj['\\']
+        delete obj['$']
         return obj;
     } else {
         return paramstr;

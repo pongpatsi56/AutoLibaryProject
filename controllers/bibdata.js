@@ -43,7 +43,7 @@ exports.list_bibitem_by_id = async (req, res) => {
     try {
         if (req.params.id) {
             await sequelize.query(
-                "SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`item_status`, `databib_item`.`item_in`, `databib_item`.`item_out`, `databib_item`.`libid_getitemin`, `databib_item`.`libid_getitemout`, `databib_item`.`item_description`, `databib_item`.`createdAt`, `databib_item`.`updatedAt`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforname`.`Subfield`,'\\\\a',''),'\\\\b',''),'\\\\c',''),'\\\\e',''),'\\\\f',''),'\\\\g',''),'\\\\h','') AS `Booknames`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforcallno`.`Subfield`,'\\\\a',''),'\\\\b',''),'\\\\c',''),'\\\\e',''),'\\\\f',''),'\\\\g',''),'\\\\h','') AS `CallNos`FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibsforname` ON `databib_item`.`Bib_ID` = `databibsforname`.`Bib_ID` AND `databibsforname`.`Field` = '245' LEFT OUTER JOIN `databibs` AS `databibsforcallno` ON `databib_item`.`Bib_ID` = `databibsforcallno`.`Bib_ID` AND `databibsforcallno`.`Field` = '082' WHERE `databib_item`.`Bib_ID` = '" + req.params.id + "'",
+                "SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`item_status`, `databib_item`.`item_in`, `databib_item`.`item_out`, `databib_item`.`libid_getitemin`, `databib_item`.`libid_getitemout`, `databib_item`.`item_description`, `databib_item`.`createdAt`, `databib_item`.`updatedAt`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforname`.`Subfield`,'$a',''),'$b',''),'$c',''),'$e',''),'$f',''),'$g',''),'$h','') AS `Booknames`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforcallno`.`Subfield`,'$a',''),'$b',''),'$c',''),'$e',''),'$f',''),'$g',''),'$h','') AS `CallNos`FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibsforname` ON `databib_item`.`Bib_ID` = `databibsforname`.`Bib_ID` AND `databibsforname`.`Field` = '245' LEFT OUTER JOIN `databibs` AS `databibsforcallno` ON `databib_item`.`Bib_ID` = `databibsforcallno`.`Bib_ID` AND `databibsforcallno`.`Field` = '082' WHERE `databib_item`.`Bib_ID` = '" + req.params.id + "'",
                 { type: sequelize.QueryTypes.SELECT })
                 .then(datafield => {
                     if (datafield && datafield != null && datafield != '') {
@@ -116,9 +116,9 @@ exports.list_databib_all_infomation = async (req, res) => {
     ///////////////////////
 
     ///// region MARC /////
-    for (const key in Object.keys(getMarc)) {
-        getMarc[key].dataValues.Subfield =  helper.subfReplaceToPeso(getMarc[key].dataValues.Subfield)
-    }
+    // for (const key in Object.keys(getMarc)) {
+    //     getMarc[key].dataValues.Subfield =  getMarc[key].dataValues.Subfield
+    // }
     ///////////////////////
 
     ///// region item /////
@@ -162,13 +162,13 @@ exports.list_databib_searching_pagination = async (req, res) => {
         var getCallNoBib = await databib.findOne({ attributes: [['Subfield', 'CallNo']], where: { Field: '082', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getPicPath = await databib.findOne({ attributes: [['Subfield', 'PicPath']], where: { Field: '960', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getISBN = await databib.findOne({ attributes: [['Subfield', 'ISBN']], where: { Field: '020', Bib_ID: GetAllBibID[key].Bib_ID } });
-        if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var title = '-';
-        if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var author = '-';
-        if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var publish = '-';
-        if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var callno = '-';
-        if (getISBN) { var isbn = getISBN.toJSON().ISBN.replace('\\a', '').replace('\\b', '').replace('\\c', '').replace('\\d', '').replace('\\e', '') } else var isbn = '-';
+        if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var title = '-';
+        if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var author = '-';
+        if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var publish = '-';
+        if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var callno = '-';
+        if (getISBN) { var isbn = getISBN.toJSON().ISBN.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var isbn = '-';
         if (getPicPath) {
-            var picpath = getPicPath.toJSON().PicPath.replace('\\a', '');
+            var picpath = getPicPath.toJSON().PicPath.replace('$a', '');
             if (picpath == '') {
                 ////// Set Default NoImgPicture /////
                 picpath = 'https://autolibraryrmutlthesisproject.000webhostapp.com/lib/img/Noimgbook.jpg'
@@ -246,6 +246,7 @@ exports.create_databib_bulk = async (req, res) => {
         } else {
             res.json({ msg: `Bad Request.` })
         }
+        // res.send(genBibId);
     } catch (e) {
         console.log(e);
         res.json(e);
@@ -263,7 +264,7 @@ exports.Upload_coverbook_img = (req, res) => {
             // databib.create({
             //     Bib_ID: res.body.bibId,
             //     Field: res.body.field,
-            //     Subfield: '\\a' + file.path
+            //     Subfield: '$a' + file.path
             // }).then(outp => res.json(outp));
         })
         res.json('Upload Success.');
