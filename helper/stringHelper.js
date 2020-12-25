@@ -54,3 +54,17 @@ exports.subfReplaceToBlank = (paramstr) => {
         .replace('\\y', '')
         .replace('\\z', '')
 }
+exports.subfloopToObject = (paramstr) => {
+    console.log(paramstr.indexOf('\\'));
+    if (paramstr.indexOf('\\') != -1) {
+        const subf = paramstr.split('\\');
+        const obj = {};
+        subf.forEach(element => {
+            Object.assign(obj, { ['\\' + element.substring(element.lenght, 1)]: element.substring(1, element.lenght) })
+        });
+        delete obj['\\']
+        return obj;
+    } else {
+        return paramstr;
+    }
+}

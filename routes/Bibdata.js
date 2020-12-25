@@ -8,6 +8,8 @@ router.get("/all", BibDataControllers.list_all_bib);
 
 // get databib by id
 router.get("/bibinfo/:id", BibDataControllers.list_databib_by_id);
+// get databib by id
+router.get("/subfObjDatabib/:id", BibDataControllers.list_databib_subfieldObj_by_id);
 
 // get bibitem by id
 router.get("/bibitem/:id", BibDataControllers.list_bibitem_by_id);

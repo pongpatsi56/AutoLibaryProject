@@ -3,7 +3,6 @@ const { Op } = require('sequelize');
 const { default: ShortUniqueId } = require('short-unique-id');
 const formidable = require('formidable');
 const path = require('path');
-const uploadDir = 'uploads';
 const helper = require('../helper/stringHelper');
 const moment = require('moment');
 
@@ -18,6 +17,26 @@ exports.list_databib_by_id = (req, res) => {
         },
         order: ['Field']
     }).then(databib => res.send(databib));
+};
+
+exports.list_databib_subfieldObj_by_id = async (req, res) => {
+    try {
+        const db = await databib.findAll({
+            where: {
+                Bib_ID: req.params.id
+            },
+            order: ['Field']
+        });
+        if (db) {
+            for (const val of db) {
+                val.Subfield = helper.subfloopToObject(val.Subfield)
+            };
+        }
+        res.json(db);
+    } catch (e) {
+        console.log(e);
+        res.send(e);
+    }
 };
 
 exports.list_bibitem_by_id = async (req, res) => {
