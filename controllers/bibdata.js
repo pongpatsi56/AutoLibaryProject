@@ -341,26 +341,13 @@ exports.update_databib = async (req, res) => {
                         strSubfield += `${run}${value}`;
                     }
                     edit_data[key]["Subfield"] = strSubfield;
-                } else {
-                    delete edit_data[key]["Subfield"]
                 }
-                await databib.update(
-                    {
-                        Indicator1: edit_data[key]["Indicator1"],
-                        Indicator2: edit_data[key]["Indicator2"],
-                        Subfield: edit_data[key]["Subfield"]
-                    },
-                    {
-                        where: {
-                            databib_ID: edit_data[key]["databib_ID"]
-                        }
-                    }
-                )
-                .then(() => { return databib.findAll({ where: { databib_ID: edit_data[key]["databib_ID"] } }) })
-                    .then((results) => { console.log(results); });
             }
-            console.log(edit_data);
-            res.json(edit_data);
+            await databib.bulkCreate(edit_data,
+                {
+                    fields: ['databib_ID', 'Bib_ID', 'Field', 'Indicator1', 'Indicator2', 'Subfield'],
+                    updateOnDuplicate: ['Indicator1', 'Indicator2', 'Subfield']
+                }).then((results) => { res.json(results) });
         } else {
             res.json({ msg: `Bad Request.` })
         }
