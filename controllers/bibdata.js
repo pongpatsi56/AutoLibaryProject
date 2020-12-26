@@ -355,7 +355,9 @@ exports.update_databib = async (req, res) => {
                             databib_ID: edit_data[key]["databib_ID"]
                         }
                     }
-                ).then(res.json('Databib Updated.'))
+                )
+                .then(() => { return databib.findAll({ where: { databib_ID: edit_data[key]["databib_ID"] } }) })
+                    .then((results) => { console.log(results); });
             }
             console.log(edit_data);
             res.json(edit_data);

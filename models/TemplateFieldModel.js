@@ -10,7 +10,7 @@ module.exports =(sequelize,DataTypes) => {
             autoIncrement: true
         },
         Temp:{
-            type:DataTypes.INTEGER(50),
+            type:DataTypes.INTEGER(20),
             allowNull:false,
             validate:{
                 notEmpty:true
