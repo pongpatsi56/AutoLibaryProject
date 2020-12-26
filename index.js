@@ -25,6 +25,9 @@ app.get('/', (req, res) => {
 /// bibdata api route ///
 app.use("/bibdata",  require("./routes/Bibdata"));
 
+/// bib template route ///
+app.use("/tempbib",  require("./routes/BibTemplate"));
+
 /// borrow and return api route ///
 app.use("/bnr",  require("./routes/BorrownReturn"));
 

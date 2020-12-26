@@ -342,7 +342,7 @@ exports.update_databib = async (req, res) => {
                     }
                     edit_data[key]["Subfield"] = strSubfield;
                 }
-            }
+            }   
             await databib.bulkCreate(edit_data,
                 {
                     fields: ['databib_ID', 'Bib_ID', 'Field', 'Indicator1', 'Indicator2', 'Subfield'],

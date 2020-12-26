@@ -30,6 +30,9 @@ module.exports =(sequelize,DataTypes) => {
                 notEmpty:true
             }
         },
-    })
+    });
+    template.associate = models => {
+        template.hasMany(models.temp_databib, {foreignKey: 'template_ID'});
+    };
     return template;
 }
