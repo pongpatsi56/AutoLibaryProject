@@ -1,8 +1,8 @@
 const { template, temp_databib } = require('../models');
-// const { Op } = require('sequelize');
+const { default: ShortUniqueId } = require('short-unique-id');
 const helper = require('../helper/stringHelper')
 
-exports.list_select_template = (req,res) =>{
+exports.list_select_template = (req, res) => {
     try {
         template.findAll({}).then(outp => res.send(outp));
     } catch (e) {
@@ -31,6 +31,43 @@ exports.list_templatebyId = async (req, res) => {
             }
             res.send(db);
         });
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+exports.create_template_databib = async (req, res) => {
+    try {
+        const uid = new ShortUniqueId();
+        const genuid = uid(10);
+        const tempBibObj = req.body.datatemp;
+        const tempPlate  = req.body.template;
+        if (tempBibObj && tempBibObj != null && tempBibObj != '' && tempPlate && tempPlate != null && tempPlate != '') {
+            /////////// Add Template //////////////
+            Object.assign(tempPlate[0], { "template_ID": genuid });
+            // await template.bulkCreate({tempPlate}).then(addtemp => res.json(addtemp));
+            ///////////////////////////////////////
+
+            ////////Add Databib Template////////
+            for (const key in tempBibObj) {
+                Object.assign(tempBibObj[key], { "template_ID": genuid });
+                let strSubfield = '';
+                for (const [run, value] of Object.entries(tempBibObj[key]["Subfield"])) {
+                    strSubfield += `${run}${value}`;
+                }
+                tempBibObj[key]["Subfield"] = strSubfield;
+            }
+            // console.log(tempPlate);
+            // console.log(tempBibObj);
+            await template.bulkCreate(tempPlate).then(() => {
+                temp_databib.bulkCreate(tempBibObj).then(outp => res.json(outp));
+            });
+            ////////////////////////////////////
+        } else {
+            res.json({ msg: `Bad Request.` })
+        }
+        // res.send(genBibId);
     } catch (e) {
         console.log(e);
         throw e;

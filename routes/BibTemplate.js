@@ -4,11 +4,14 @@ const router = express.Router();
 
 const BibTemplateControllers = require('../controllers/bibtemplate');
 
-/* get field indc1,2 subfield show for add book */
+/* get Template Selecter */
 router.get("/listTempSelect", BibTemplateControllers.list_select_template);
 
-/* get field indc1,2 subfield show for add book */
+/* get template by id*/
 router.get("/listtemplatebib/:templateId", BibTemplateControllers.list_templatebyId);
+
+/* create template*/
+router.post("/addtempbib", BibTemplateControllers.create_template_databib);
 
 
 module.exports = router;
