@@ -3,12 +3,11 @@ const { default: ShortUniqueId } = require('short-unique-id');
 const helper = require('../helper/stringHelper')
 
 exports.list_select_template = async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-    res.setHeader('Access-Control-Allow-Credentials', true); 
-    
     try {
+        res.setHeader('Access-Control-Allow-Origin', 'https://newagent-qqqwre.web.app');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE, OPTIONS'); // If needed
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Option, Authorization');
+        res.setHeader('Access-Control-Allow-Credentials', true);
         await template.findAll({}).then(outp => res.send(outp));
     } catch (e) {
         throw e;
