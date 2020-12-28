@@ -3,7 +3,11 @@ const { default: ShortUniqueId } = require('short-unique-id');
 const helper = require('../helper/stringHelper')
 
 exports.list_select_template = async (req, res) => {
-    res.header('Access-Control-Allow-Origin','*')
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true); 
+    
     try {
         await template.findAll({}).then(outp => res.send(outp));
     } catch (e) {
