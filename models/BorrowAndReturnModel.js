@@ -62,7 +62,7 @@ module.exports =(sequelize,DataTypes) => {
         borrowandreturn.belongsTo(models.databib_item,{
             foreignKey: 'Barcode'
         })
-        borrowandreturn.belongsTo(models.databib,{
+        borrowandreturn.belongsTo(models.databib,{ as: 'nameBooks',
             foreignKey: 'Bib_ID'
         })
     };

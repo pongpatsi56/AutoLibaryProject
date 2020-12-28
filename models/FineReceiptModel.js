@@ -8,6 +8,13 @@ module.exports =(sequelize,DataTypes) => {
             },
             primaryKey: true
         },
+        bnr_ID:{
+            type:DataTypes.INTEGER(20),
+            allowNull:false,
+            validate:{
+                notEmpty:true
+            }
+        },
         Payment_Total:{
             type:DataTypes.DOUBLE(45,2),
             allowNull:false,

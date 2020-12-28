@@ -2,13 +2,9 @@ const { template, temp_databib } = require('../models');
 const { default: ShortUniqueId } = require('short-unique-id');
 const helper = require('../helper/stringHelper')
 
-exports.list_select_template = async (req, res) => {
+exports.list_select_template = (req, res) => {
     try {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE, OPTIONS'); // If needed
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Option, Authorization');
-        res.setHeader('Access-Control-Allow-Credentials', true);
-        await template.findAll({}).then(outp => res.send(outp));
+        template.findAll({}).then(outp => res.send(outp));
     } catch (e) {
         throw e;
     }
@@ -46,7 +42,7 @@ exports.create_template_databib = async (req, res) => {
         const uid = new ShortUniqueId();
         const genuid = uid(10);
         const tempBibObj = req.body.datatemp;
-        const tempPlate  = req.body.template;
+        const tempPlate = req.body.template;
         if (tempBibObj && tempBibObj != null && tempBibObj != '' && tempPlate && tempPlate != null && tempPlate != '') {
             /////////// Add Template //////////////
             Object.assign(tempPlate[0], { "template_ID": genuid });

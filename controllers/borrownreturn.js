@@ -1,10 +1,15 @@
-const { borrowandreturn, databib_item, databib, sequelize, allmembers } = require('../models');
+const { borrowandreturn, databib_item, databib, fine_reciept, allmembers } = require('../models');
 const { Op } = require('sequelize');
 const helper = require('../helper/stringHelper');
 const moment = require('moment');
 
-exports.List_BorrowAndReturn_byUser = async (req, res) => {
+exports.List_All_BorrowandReturn = async (req, res) => {
     try {
+        const datenow = moment();
+        // var b = moment([2007, 0, 28]);
+        // console.log(datenow.diff(b, 'days'))
+        const DataResults = {};
+        //////////////// ประวัติการยืม/คืนหนังสือ ///////////////////
         const dataBnR = await borrowandreturn.findAll({
             attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
             include: [
@@ -14,16 +19,135 @@ exports.List_BorrowAndReturn_byUser = async (req, res) => {
                     required: false
                 },
                 {
-                    model: databib,
+                    model: databib, as: 'nameBooks',
                     attributes: ['Subfield'],
                     where: { Field: '245' },
                     required: false
                 }
             ],
             where: {
-                Member_ID: req.params.memid
+                [Op.and]: [
+                    {
+                        Member_ID: req.params.memid
+
+                    },
+                    {
+                        Due: {
+                            [Op.not]: null
+                        }
+                    }
+                ]
             }
-        }).then(out => res.json(out))
+        }).then(dbnr => {
+            if (dbnr.lenght != 0) {
+                dbnr.map((data) => {
+                    data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield)
+                });
+                Object.assign(DataResults, { 'bnr_history': dbnr })
+            } else {
+                DataResults.bnr_history = "ไม่พบประวัติการยืม"
+            }
+        });
+
+        ///////////////หนังสือค้าง///////////////////////
+        const databorrow = await borrowandreturn.findAll({
+            attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
+            include: [
+                {
+                    model: databib_item,
+                    attributes: ['Barcode', 'item_status'],
+                    where: { item_status: 'Not Available' },
+
+                    required: false
+                },
+                {
+                    model: databib, as: 'nameBooks',
+                    attributes: ['Subfield'],
+                    where: { Field: '245' },
+                    required: false
+                }
+            ],
+            where: {
+                [Op.and]: [
+                    {
+                        Member_ID: req.params.memid
+
+                    },
+                    {
+                        Returns: {
+                            [Op.lt]: datenow
+                        }
+                    },
+                    {
+                        Due: {
+                            [Op.is]: null
+                        }
+                    }
+                ]
+            }
+        }).then(dborw => {
+            if (dborw.lenght != 0) {
+                dborw.map((data) => {
+                    data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield);
+                    data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days');
+                });
+                Object.assign(DataResults, { 'databorrow': dborw });
+            } else {
+                DataResults.databorrow = "ไม่พบรายการหนังสือคงค้าง"
+            }
+        });
+
+        ///////////////////// ค่าปรับค้าง /////////////////////////
+        await borrowandreturn.findAll({
+            attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
+            include: [
+                {
+                    model: databib_item,
+                    attributes: ['Barcode', 'item_status'],
+                    where: { item_status: 'Not Available' },
+
+                    required: false
+                },
+                {
+                    model: databib, as: 'nameBooks',
+                    attributes: ['Subfield'],
+                    where: { Field: '245' },
+                    required: false
+                }
+            ],
+            where: {
+                [Op.and]: [
+                    {
+                        Member_ID: req.params.memid
+
+                    },
+                    {
+                        Returns: {
+                            [Op.lt]: datenow
+                        }
+                    },
+                    {
+                        Due: {
+                            [Op.is]: null
+                        }
+                    }
+                ]
+            }
+        }).then(dfin => {
+            if (dfin.lenght != 0) {
+                dfin.map((data) => {
+                    data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield);
+                    data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days');
+                    data.dataValues.finebook = datenow.diff(moment(data.Returns), 'days');
+                });
+                Object.assign(DataResults, { 'finebooks': dfin });
+            } else {
+                DataResults.finebooks = "ไม่พบรายการค่าปรับคงค้าง"
+            }
+        });
+        console.log(DataResults);
+        res.json(DataResults)
+
     } catch (e) {
         console.log(e);
         return res.status(500).json(e);
@@ -33,7 +157,7 @@ exports.List_BorrowAndReturn_byUser = async (req, res) => {
 exports.List_data_User = async (req, res) => {
     try {
         await allmembers.findAll({
-            attributes: ['member_ID','mem_Citizenid','FName', 'LName', 'Position'],
+            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position'],
             where: {
                 [Op.or]: [
                     {
@@ -64,30 +188,16 @@ exports.List_data_User = async (req, res) => {
     }
 };
 
-exports.List_All_BorrowandReturn_byLib = async (req, res) => {
+exports.List_itemBooktoBorrow = (req, res) => {
     try {
-        const dataBnR = await borrowandreturn.findAll({
-            attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
-            include: [
-                {
-                    model: databib_item,
-                    attributes: ['Barcode', 'item_status'],
-                    required: false
-                },
-                {
-                    model: databib,
-                    attributes: ['Subfield'],
-                    where: { Field: '245' },
-                    required: false
-                }
-            ],
-            where: {
-                Member_ID: req.params.memid
-            }
-        }).then(out => res.json(out))
+        databib_item.sequelize.query(
+            "SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`Item_status`, `databib_item`.`item_description`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibs`.`Subfield`,'$a',''),'$b',''),'$c',''),'$e',''),'$f',''),'$g',''),'$h','') AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibs` ON `databib_item`.`Bib_ID` = `databibs`.`Bib_ID` AND `databibs`.`Field` = '245' WHERE `databib_item`.`Barcode` ='" + req.params.brcd + "'",
+            { type: databib_item.sequelize.QueryTypes.SELECT }
+        ).then((out) => {
+            res.send(out);
+        })
     } catch (e) {
         console.log(e);
-        return res.status(500).json(e);
     }
 };
 
@@ -162,3 +272,4 @@ exports.update_Return_Data = async (req, res) => {
 
     }
 };
+ 
