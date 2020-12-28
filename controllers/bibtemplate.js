@@ -2,9 +2,10 @@ const { template, temp_databib } = require('../models');
 const { default: ShortUniqueId } = require('short-unique-id');
 const helper = require('../helper/stringHelper')
 
-exports.list_select_template = (req, res) => {
+exports.list_select_template = async (req, res) => {
+    res.header('Access-Control-Allow-Origin','*')
     try {
-        template.findAll({}).then(outp => res.send(outp));
+        await template.findAll({}).then(outp => res.send(outp));
     } catch (e) {
         throw e;
     }
