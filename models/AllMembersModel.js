@@ -57,6 +57,12 @@ module.exports = (sequelize, DataTypes) => {
                 notEmpty: true
             }
         },
+        Class:{
+            type:DataTypes.STRING(25) + ' CHARSET utf8 COLLATE utf8_unicode_ci'
+        },
+        Classroom:{
+            type:DataTypes.STRING(25) + ' CHARSET utf8 COLLATE utf8_unicode_ci'
+        },
     })
     return allmembers;
 }

@@ -1,8 +1,70 @@
-const { borrowandreturn, databib_item, databib, sequelize } = require('../models');
+const { borrowandreturn, databib_item, databib, sequelize, allmembers } = require('../models');
+const { Op } = require('sequelize');
 const helper = require('../helper/stringHelper');
 const moment = require('moment');
 
-exports.List_BorrowAndReturn_Data = async (req, res) => {
+exports.List_BorrowAndReturn_byUser = async (req, res) => {
+    try {
+        const dataBnR = await borrowandreturn.findAll({
+            attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
+            include: [
+                {
+                    model: databib_item,
+                    attributes: ['Barcode', 'item_status'],
+                    required: false
+                },
+                {
+                    model: databib,
+                    attributes: ['Subfield'],
+                    where: { Field: '245' },
+                    required: false
+                }
+            ],
+            where: {
+                Member_ID: req.params.memid
+            }
+        }).then(out => res.json(out))
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json(e);
+    }
+};
+
+exports.List_data_User = async (req, res) => {
+    try {
+        await allmembers.findAll({
+            attributes: ['member_ID','mem_Citizenid','FName', 'LName', 'Position'],
+            where: {
+                [Op.or]: [
+                    {
+                        member_ID: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    },
+                    {
+                        mem_Citizenid: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    },
+                    {
+                        FName: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    },
+                    {
+                        LName: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    }
+                ]
+            }
+        }).then(out => res.json(out))
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+exports.List_All_BorrowandReturn_byLib = async (req, res) => {
     try {
         const dataBnR = await borrowandreturn.findAll({
             attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
