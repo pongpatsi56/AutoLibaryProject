@@ -4,7 +4,7 @@ const helper = require('../helper/stringHelper')
 
 exports.list_select_template = async (req, res) => {
     try {
-        res.setHeader('Access-Control-Allow-Origin', 'https://newagent-qqqwre.web.app');
+        res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE, OPTIONS'); // If needed
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Option, Authorization');
         res.setHeader('Access-Control-Allow-Credentials', true);
