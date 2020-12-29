@@ -34,8 +34,8 @@ app.use("/bnr",  require("./routes/BorrownReturn"));
 /// marc helper route ///
 app.use("/marc",  require("./routes/MarcData"));
 
-/// login route ///
-app.use("/userlogin",  require("./routes/Users"));
+/// All Member route ///
+app.use("/allmember",  require("./routes/Users"));
 
 
 DB.sequelize.sync().then((req) => {

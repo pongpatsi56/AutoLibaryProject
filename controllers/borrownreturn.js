@@ -6,8 +6,6 @@ const moment = require('moment');
 exports.List_All_BorrowandReturn = async (req, res) => {
     try {
         const datenow = moment();
-        // var b = moment([2007, 0, 28]);
-        // console.log(datenow.diff(b, 'days'))
         const DataResults = {};
         //////////////// ประวัติการยืม/คืนหนังสือ ///////////////////
         const dataBnR = await borrowandreturn.findAll({
