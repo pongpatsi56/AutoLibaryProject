@@ -1,4 +1,5 @@
 const { allmembers } = require('../models');
+const { Op } = require('sequelize');
 
 exports.list_user_login = (req, res) => {
     try {
@@ -56,7 +57,31 @@ exports.list_All_UserData_toManage = async (req, res) => {
         var EndIndex = Page * limit;
         var Results = {};
         const userdata = await allmembers.findAll({
-            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom']
+            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
+            where: {
+                [Op.or]: [
+                    {
+                        member_ID: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    },
+                    {
+                        mem_Citizenid: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    },
+                    {
+                        FName: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    },
+                    {
+                        LName: {
+                            [Op.substring]: req.params.keyword
+                        }
+                    }
+                ]
+            }
         });
         if (StartIndex > 0) {
             Results.previous = {
@@ -99,24 +124,24 @@ exports.create_New_User = async (req, res) => {
             role = 'student';
         }
         // console.log(req.body,role);
-            await databib_item.create({
-                member_ID: userid,
-                mem_Citizenid: citicenid,
-                FName: firstname,
-                LName: lastname,
-                Username: userid,
-                Password: citicenid,
-                Position: role,
-                mem_type: memtype,
-                Class: cls,
-                Classroom: clsroom
-            }).then(responses => {
-                res.json({
-                    status: 200,
-                    Results: responses,
-                    msg: `User has been Added.`
-                })
-            });
+        await databib_item.create({
+            member_ID: userid,
+            mem_Citizenid: citicenid,
+            FName: firstname,
+            LName: lastname,
+            Username: userid,
+            Password: citicenid,
+            Position: role,
+            mem_type: memtype,
+            Class: cls,
+            Classroom: clsroom
+        }).then(responses => {
+            res.json({
+                status: 200,
+                Results: responses,
+                msg: `User has been Added.`
+            })
+        });
     } catch (error) {
         console.log('Error:', error);
         res.send(error);
