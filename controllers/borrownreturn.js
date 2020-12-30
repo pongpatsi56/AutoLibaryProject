@@ -87,7 +87,7 @@ exports.List_All_BorrowandReturn = async (req, res) => {
             if (dborw.lenght != 0) {
                 dborw.map((data) => {
                     data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield);
-                    data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days');
+                    data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days') != 0 ? datenow.diff(moment(data.Returns), 'days') : "ยังไม่เกินกำหนด";
                 });
                 Object.assign(DataResults, { 'databorrow': dborw });
             } else {
@@ -221,10 +221,10 @@ exports.create_Borrow_Data = async (req, res) => {
                 databib_item.update(
                     { item_status: 'Not Available' },
                     { where: { Barcode: brcd } }
-                ).then(resupdate => {
+                ).then(() => {
                     res.json({
                         status: 200,
-                        Results: { 'CreateResult': rescreate, 'UpdateResult': resupdate },
+                        Results: { 'CreateBorrowResult': rescreate, 'UpdateStatusBookResult': 'Book has borrowed' },
                         msg: `Item ${brcd} Borrowed by ${memid}`
                     })
                 })
@@ -257,7 +257,7 @@ exports.update_Return_Data = async (req, res) => {
                 res.json({
                     status: 200,
                     Results: { 'BorrownReturnResult': updBnR, 'DatabibItemResult': updDBI },
-                    msg: `Item ${brcd} Borrowed by ${memid}`
+                    msg: `Item ${brcd} has Returned `
                 })
             } else { res.json({ msg: `Updating some mistakes.` }) }
         } else {
@@ -270,4 +270,3 @@ exports.update_Return_Data = async (req, res) => {
 
     }
 };
- 
