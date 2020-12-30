@@ -49,65 +49,11 @@ exports.update_edit_user = (req, res) => {
     }
 };
 
-exports.list_All_UserData_toManage = async (req, res) => {
+exports.list_All_UserData_toManage = (req, res) => {
     try {
-        var Page = parseInt(req.query.StartPage);
-        var limit = parseInt(req.query.perPage);
-        var StartIndex = (Page - 1) * limit;
-        var EndIndex = Page * limit;
-        var Results = {};
-        const userdata = await allmembers.findAll({
+         allmembers.findAll({
             attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
-            where: {
-                [Op.or]: [
-                    {
-                        member_ID: {
-                            [Op.substring]: req.params.keyword
-                        }
-                    },
-                    {
-                        mem_Citizenid: {
-                            [Op.substring]: req.params.keyword
-                        }
-                    },
-                    {
-                        FName: {
-                            [Op.substring]: req.params.keyword
-                        }
-                    },
-                    {
-                        LName: {
-                            [Op.substring]: req.params.keyword
-                        }
-                    }
-                ]
-            }
-        });
-        if (StartIndex > 0) {
-            Results.previous = {
-                Page: Page - 1,
-                limit: limit
-            }
-        }
-        if (EndIndex < userdata.length) {
-            Results.next = {
-                Page: Page + 1,
-                limit: limit
-            }
-        }
-        Results.pagiInfo = {
-            Total: userdata.length,
-            currentPage: Page,
-            countPage: Math.ceil(userdata.length / limit),
-            limit: limit
-        }
-        // console.log(userdata);
-        if (userdata && userdata != null && userdata != '') {
-            Results.Results = userdata.slice(StartIndex, EndIndex)
-        } else {
-            Results.Results = { msg: `<b>${Keyword}</b> is not found.` };
-        }
-        res.json(Results);
+        }).then((output)=>res.json(output));
     } catch (e) {
         console.log(e);
         throw e;
