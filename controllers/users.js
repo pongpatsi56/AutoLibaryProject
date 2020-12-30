@@ -70,7 +70,7 @@ exports.create_New_User = async (req, res) => {
             role = 'student';
         }
         // console.log(req.body,role);
-        await databib_item.create({
+        await allmembers.create({
             member_ID: userid,
             mem_Citizenid: citicenid,
             FName: firstname,
