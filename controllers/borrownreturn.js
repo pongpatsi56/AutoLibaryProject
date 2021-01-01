@@ -136,7 +136,7 @@ exports.List_All_BorrowandReturn = async (req, res) => {
                 dfin.map((data) => {
                     data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield);
                     data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days');
-                    data.dataValues.finebook = datenow.diff(moment(data.Returns), 'days');
+                    data.dataValues.finebook = datenow.diff(moment(data.Returns), 'days') * 1;
                 });
                 Object.assign(DataResults, { 'finebooks': dfin });
             } else {

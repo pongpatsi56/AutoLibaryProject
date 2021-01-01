@@ -16,32 +16,64 @@ exports.list_user_login = (req, res) => {
     }
 };
 
-exports.list_userinfo_toEdit = (req, res) => {
+exports.list_userinfo_toEdit = async (req, res) => {
     try {
-        allmembers.findOne({
+        const userdata = await allmembers.findOne({
             attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
             where: {
                 member_ID: req.params.memid
             }
-        }).then(outp => res.send(outp));
+        });
+        if (userdata != null && userdata != undefined && userdata != '') {
+            res.json(userdata);
+        } else {
+            res.json({ msg: "User not found." });
+        }
     } catch (e) {
         console.log(e);
         throw e;
     }
 };
 
-exports.update_edit_user = (req, res) => {
+exports.update_edituser_byuser = (req, res) => {
     try {
-        const { memid, cityid, firstname, lastname, cls, clsroom } = req.body;
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom } = req.body;
         allmembers.update(
             {
-                mem_Citizenid: cityid,
-                FName: firstname,
-                LName: lastname,
-                Class: cls,
-                Classroom: clsroom
+                mem_Citizenid: mem_Citizenid,
+                FName: FName,
+                LName: LName,
+                Class: Class,
+                Classroom: Classroom
             },
-            { where: { member_ID: memid } }
+            { where: { member_ID: member_ID } }
+        ).then(res.json({ msg: 'User Updated.' }));
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+exports.update_edituser_bylib = (req, res) => {
+    try {
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom , mem_type } = req.body;
+        var role = 'student';
+        if (mem_type == '1') {
+            role = 'personnel';
+        } else {
+            role = 'student';
+        }
+        allmembers.update(
+            {
+                mem_Citizenid: mem_Citizenid,
+                FName: FName,
+                LName: LName,
+                Class: Class,
+                Classroom: Classroom,
+                Position: role,
+                mem_type: mem_type
+            },
+            { where: { member_ID: member_ID } }
         ).then(res.json({ msg: 'User Updated.' }));
     } catch (e) {
         console.log(e);
@@ -51,9 +83,9 @@ exports.update_edit_user = (req, res) => {
 
 exports.list_All_UserData_toManage = (req, res) => {
     try {
-         allmembers.findAll({
+        allmembers.findAll({
             attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
-        }).then((output)=>res.json(output));
+        }).then((output) => res.json(output));
     } catch (e) {
         console.log(e);
         throw e;
@@ -62,25 +94,25 @@ exports.list_All_UserData_toManage = (req, res) => {
 
 exports.create_New_User = async (req, res) => {
     try {
-        const { userid, citicenid, firstname, lastname, cls, clsroom, memtype } = req.body;
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom, mem_type } = req.body;
         var role = 'student';
-        if (memtype == '1') {
-            role = 'teacher';
+        if (mem_type == '1') {
+            role = 'personnel';
         } else {
             role = 'student';
         }
         // console.log(req.body,role);
         await allmembers.create({
-            member_ID: userid,
-            mem_Citizenid: citicenid,
-            FName: firstname,
-            LName: lastname,
-            Username: userid,
-            Password: citicenid,
+            member_ID: member_ID,
+            mem_Citizenid: mem_Citizenid,
+            FName: FName,
+            LName: LName,
+            Username: member_ID,
+            Password: mem_Citizenid,
             Position: role,
-            mem_type: memtype,
-            Class: cls,
-            Classroom: clsroom
+            mem_type: mem_type,
+            Class: Class,
+            Classroom: Classroom
         }).then(responses => {
             res.json({
                 status: 200,
@@ -93,4 +125,12 @@ exports.create_New_User = async (req, res) => {
         res.send(error);
 
     }
+};
+
+exports.delete_User = (req, res) => {
+    allmembers.destroy({
+        where: {
+            member_ID: req.params.id
+        }
+    }).then(() => res.send("User has Deleted."));
 };
