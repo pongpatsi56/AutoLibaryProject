@@ -7,6 +7,9 @@ const UserControllers = require('../controllers/users');
 /* User Login */
 router.post("/login", UserControllers.list_user_login);
 
+/* User Login */
+router.get("/checkmemberexist/:memid", UserControllers.check_memid);
+
 /*List DataUser to Edit  */
 router.get("/listedituser/:memid", UserControllers.list_userinfo_toEdit);
 

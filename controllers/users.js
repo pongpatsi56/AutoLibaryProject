@@ -16,6 +16,24 @@ exports.list_user_login = (req, res) => {
     }
 };
 
+exports.check_memid = async (req, res) => {
+    try {
+       const Is_check  = await allmembers.findOne({
+            where: {
+                member_ID: req.params.memid
+            }
+        });
+        if (Is_check != null && Is_check != undefined && Is_check != '') {
+            res.json({ IsMemberId: true });
+        } else {
+            res.json({ IsMemberId: false });
+        }
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json(e);
+    }
+};
+
 exports.list_userinfo_toEdit = async (req, res) => {
     try {
         const userdata = await allmembers.findOne({
