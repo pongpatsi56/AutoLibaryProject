@@ -19,7 +19,7 @@ exports.list_user_login = (req, res) => {
 exports.list_userinfo_toEdit = async (req, res) => {
     try {
         const userdata = await allmembers.findOne({
-            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
+            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom','mem_type'],
             where: {
                 member_ID: req.params.memid
             }
