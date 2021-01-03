@@ -96,6 +96,11 @@ exports.list_All_UserData_toManage = (req, res) => {
     try {
         allmembers.findAll({
             attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
+            where: {
+                Position: {
+                    [Op.or]: ['student', 'personnel']
+                  }
+            }
         }).then((output) => res.json(output));
     } catch (e) {
         console.log(e);
