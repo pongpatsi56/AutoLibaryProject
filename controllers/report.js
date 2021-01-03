@@ -34,8 +34,13 @@ exports.borrowandreturn_datareport = async (req, res) => {
                     required: false
                 }
             ],
-            where:{
-                Borrow : date
+            where: {
+                Borrow: date
+            }
+        });
+        const amount = await borrowandreturn.count({
+            where: {
+                Borrow: date
             }
         });
         if (datareport != '' && datareport != null && datareport != undefined) {
@@ -48,10 +53,11 @@ exports.borrowandreturn_datareport = async (req, res) => {
             res.json({
                 Title: "รายงานสถิติข้อมูลการยืม-คืนหนังสือ",
                 DateThai: helper.convdatethai(date),
+                Total: amount,
                 Data: datareport,
             });
         } else {
-            res.json({ msg: 'Not Found Data Report' })
+            res.json({ msg: 'Not Found DataReport' })
         }
     } catch (e) {
         console.log(e);
@@ -97,17 +103,28 @@ exports.notReturn_datareport = async (req, res) => {
                 Borrow: date
             }
         });
-        for (const key in datareport) {
-            datareport[key].nameBooks.Subfield = helper.subfReplaceToBlank(datareport[key].nameBooks.Subfield);
-            if (datareport[key].ISBNs) {
-                datareport[key].ISBNs.Subfield = helper.subfReplaceToBlank(datareport[key].ISBNs.Subfield);
+        const amount = await borrowandreturn.count({
+            where: {
+                Borrow: date
             }
-        }
-        res.json({
-            Title: "รายงานหนังสือค้างส่ง",
-            DateThai:helper.convdatethai(date),
-            Data: datareport,
         });
+        if (datareport != '' && datareport != null && datareport != undefined) {
+            for (const key in datareport) {
+                datareport[key].nameBooks.Subfield = helper.subfReplaceToBlank(datareport[key].nameBooks.Subfield);
+                if (datareport[key].ISBNs) {
+                    datareport[key].ISBNs.Subfield = helper.subfReplaceToBlank(datareport[key].ISBNs.Subfield);
+                }
+            }
+            res.json({
+                Title: "รายงานหนังสือค้างส่ง",
+                DateThai: helper.convdatethai(date),
+                Total: amount,
+                Data: datareport,
+            });
+        } else {
+            res.json({ msg: 'Not Found DataReport' })
+        }
+
     } catch (e) {
         console.log(e);
         throw e;

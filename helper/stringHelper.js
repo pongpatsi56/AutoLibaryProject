@@ -69,13 +69,14 @@ exports.subfloopToObject = (paramstr) => {
 }
 exports.convdatethai = (rawdate) => {
     if (rawdate) {
-       return rawdate.toLocaleDateString('th-TH', {
+        const local = 'th-TH';
+        return rawdate.toLocaleDateString(local, {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             weekday: 'long',
-          })
+        });
     } else {
-        return paramstr;
+        return rawdate;
     }
 }
