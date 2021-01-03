@@ -100,7 +100,8 @@ exports.list_All_UserData_toManage = (req, res) => {
                 Position: {
                     [Op.or]: ['student', 'personnel']
                   }
-            }
+            },
+            order:['member_ID']
         }).then((output) => res.json(output));
     } catch (e) {
         console.log(e);

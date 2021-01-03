@@ -65,6 +65,15 @@ module.exports =(sequelize,DataTypes) => {
         borrowandreturn.belongsTo(models.databib,{ as: 'nameBooks',
             foreignKey: 'Bib_ID'
         })
+        borrowandreturn.belongsTo(models.databib,{ as: 'ISBNs',
+            foreignKey: 'Bib_ID'
+        })
+        borrowandreturn.belongsTo(models.allmembers,{ as: 'librariannames',
+            foreignKey: 'Librarian_ID'
+        })
+        borrowandreturn.belongsTo(models.allmembers,{ as: 'membernames',
+            foreignKey: 'Member_ID'
+        })
     };
 
     return borrowandreturn;

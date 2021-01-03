@@ -37,6 +37,9 @@ app.use("/marc",  require("./routes/MarcData"));
 /// All Member route ///
 app.use("/allmember",  require("./routes/Users"));
 
+/// Reporting route ///
+app.use("/report",  require("./routes/Report"));
+
 
 DB.sequelize.sync().then((req) => {
     app.listen(PORT, err => {
