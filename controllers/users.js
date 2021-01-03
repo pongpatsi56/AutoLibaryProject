@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 exports.list_user_login = (req, res) => {
     try {
         allmembers.findOne({
-            attributes: ['member_ID', 'FName', 'LName', 'Position', 'mem_type'],
+            attributes: ['member_ID', 'FName', 'LName', 'Position'],
             where: {
                 Username: req.body.username,
                 Password: req.body.password
@@ -37,7 +37,7 @@ exports.check_memid = async (req, res) => {
 exports.list_userinfo_toEdit = async (req, res) => {
     try {
         const userdata = await allmembers.findOne({
-            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom','mem_type'],
+            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
             where: {
                 member_ID: req.params.memid
             }
@@ -74,13 +74,7 @@ exports.update_edituser_byuser = (req, res) => {
 
 exports.update_edituser_bylib = (req, res) => {
     try {
-        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom , mem_type } = req.body;
-        var role = 'student';
-        if (mem_type == '1') {
-            role = 'personnel';
-        } else {
-            role = 'student';
-        }
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom , Position } = req.body;
         allmembers.update(
             {
                 mem_Citizenid: mem_Citizenid,
@@ -88,8 +82,7 @@ exports.update_edituser_bylib = (req, res) => {
                 LName: LName,
                 Class: Class,
                 Classroom: Classroom,
-                Position: role,
-                mem_type: mem_type
+                Position: Position
             },
             { where: { member_ID: member_ID } }
         ).then(res.json({ msg: 'User Updated.' }));
@@ -112,14 +105,7 @@ exports.list_All_UserData_toManage = (req, res) => {
 
 exports.create_New_User = async (req, res) => {
     try {
-        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom, mem_type } = req.body;
-        var role = 'student';
-        if (mem_type == '1') {
-            role = 'personnel';
-        } else {
-            role = 'student';
-        }
-        // console.log(req.body,role);
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom, Position } = req.body;
         await allmembers.create({
             member_ID: member_ID,
             mem_Citizenid: mem_Citizenid,
@@ -127,8 +113,7 @@ exports.create_New_User = async (req, res) => {
             LName: LName,
             Username: member_ID,
             Password: mem_Citizenid,
-            Position: role,
-            mem_type: mem_type,
+            Position: Position,
             Class: Class,
             Classroom: Classroom
         }).then(responses => {

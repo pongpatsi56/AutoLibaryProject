@@ -70,7 +70,7 @@ exports.list_databib_all_infomation = async (req, res) => {
         order: ['Field']
     });
     var getItemBook = await databib_item.findAll({
-        attributes: ['Bib_ID', 'Barcode', 'Copy','item_status'],
+        attributes: ['Bib_ID', 'Barcode', 'Copy', 'item_status'],
         where: { Bib_ID: req.params.id }
     });
     var getCallNo = await databib.findOne({
@@ -84,19 +84,19 @@ exports.list_databib_all_infomation = async (req, res) => {
             title = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
-            author =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+            author = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
-            publish =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+            publish = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
-            callno =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+            callno = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
-            isbn =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+            isbn = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
         }
         if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
-            picpath =  helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield)
+            picpath = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield)
         }
     }
     title = (title) ? title : 'NoTitleBook';
@@ -125,7 +125,7 @@ exports.list_databib_all_infomation = async (req, res) => {
     for (const run in Object.keys(getItemBook)) {
         if (getItemBook[run].dataValues.Copy == null || getItemBook[run].dataValues.Copy == undefined) { getItemBook[run].dataValues.Copy = '-' }
         if (getCallNo) {
-            getItemBook[run].dataValues.CallNo =  helper.subfReplaceToBlank(getCallNo.toJSON().Subfield.replace('/', ''));
+            getItemBook[run].dataValues.CallNo = helper.subfReplaceToBlank(getCallNo.toJSON().Subfield.replace('/', ''));
         } else {
             getItemBook[run].dataValues.CallNo = '-';
         }
@@ -253,7 +253,7 @@ exports.create_databib_bulk = async (req, res) => {
     }
 };
 
-exports.Upload_coverbook_img = (req, res) => {
+exports.Upload_coverbook_img = async (req, res) => {
     try {
         var form = new formidable.IncomingForm();
         form.parse(req);
@@ -261,11 +261,11 @@ exports.Upload_coverbook_img = (req, res) => {
             const [fileName, fileExt] = file.name.split('.')
             file.path = path.join('uploads', `${fileName}_${new Date().getTime()}.${fileExt}`)
             console.log('Uploaded ' + file.path);
-            // databib.create({
+            // const addbib = await databib.create({
             //     Bib_ID: res.body.bibId,
             //     Field: res.body.field,
             //     Subfield: '$a' + file.path
-            // }).then(outp => res.json(outp));
+            // });
         })
         res.json('Upload Success.');
     } catch (error) {
@@ -297,7 +297,7 @@ exports.create_databib = (req, res) => {
 
 exports.create_databib_item = async (req, res) => {
     try {
-        const { brcd, bbid, copy, lbin, } = req.body;
+        const { brcd, bbid, copy, lbin, ides } = req.body;
         let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
         const chkDataBib = await databib.findOne({ where: { Bib_ID: bbid } });
         const getBooknames = await databib.findOne({ attributes: ['Subfield'], where: { Bib_ID: bbid, Field: '245' } });
@@ -312,7 +312,7 @@ exports.create_databib_item = async (req, res) => {
                 item_out: null,
                 libid_getitemin: lbin,
                 libid_getitemout: null,
-                item_description: null
+                item_description: ides
             }).then(responses => {
                 res.json({
                     status: 200,
@@ -342,7 +342,7 @@ exports.update_databib = async (req, res) => {
                     }
                     edit_data[key]["Subfield"] = strSubfield;
                 }
-            }   
+            }
             await databib.bulkCreate(edit_data,
                 {
                     fields: ['databib_ID', 'Bib_ID', 'Field', 'Indicator1', 'Indicator2', 'Subfield'],
@@ -362,4 +362,36 @@ exports.delete_databib = (req, res) => {
             id: req.params.id
         }
     }).then(() => res.send("success"));
+};
+
+exports.update_bibItem_description = async (req, res) => {
+    try {
+        const { brcd, ides, libid } = req.body;
+        let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
+        if (brcd != null && brcd != '' && ides != null && ides != '') {
+            await databib_item.update(
+                {
+                    item_status: 'Remove',
+                    item_out: datenow,
+                    item_description: ides,
+                    libid_getitemout: libid
+                },
+                { where: { Barcode: brcd } }
+            ).then(results => {
+                if (results) {
+                    res.json({
+                        status: 200,
+                        Results: 'Update Success.',
+                        msg: `Item ${brcd} has Updated `
+                    })
+                } else { res.json({ msg: `Updating some mistakes.` }) }
+            });
+        } else {
+            res.json({ msg: `BAD REQUEST.` });
+        }
+    } catch (error) {
+        console.log('Error:', error);
+        res.send(error);
+
+    }
 };

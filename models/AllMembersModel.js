@@ -50,13 +50,6 @@ module.exports = (sequelize, DataTypes) => {
                 notEmpty: true
             }
         },
-        mem_type: {
-            type: DataTypes.INTEGER(2),
-            allowNull: false,
-            validate: {
-                notEmpty: true
-            }
-        },
         Class:{
             type:DataTypes.STRING(25) + ' CHARSET utf8 COLLATE utf8_unicode_ci'
         },

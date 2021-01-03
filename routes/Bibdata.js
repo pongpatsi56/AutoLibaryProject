@@ -39,6 +39,9 @@ router.post("/addnewitem", BibDataControllers.create_databib_item);
 // edit a databib
 router.put("/edit", BibDataControllers.update_databib);
 
+// edit bib item description (ตัดจำหน่าย)
+router.put("/edititemdes", BibDataControllers.update_bibItem_description);
+
 // delete databib
 router.delete("/delete/:id", BibDataControllers.delete_databib);
 
