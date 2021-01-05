@@ -38,7 +38,7 @@ exports.List_All_BorrowandReturn = async (req, res) => {
                 ]
             }
         }).then(dbnr => {
-            if (dbnr.lenght != 0) {
+            if (dbnr != '') {
                 dbnr.map((data) => {
                     data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield)
                 });
@@ -85,7 +85,7 @@ exports.List_All_BorrowandReturn = async (req, res) => {
                 ]
             }
         }).then(dborw => {
-            if (dborw.lenght != 0) {
+            if (dborw != '') {
                 dborw.map((data) => {
                     data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield);
                     data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days') != 0 ? datenow.diff(moment(data.Returns), 'days') : "ยังไม่เกินกำหนด";
@@ -101,7 +101,7 @@ exports.List_All_BorrowandReturn = async (req, res) => {
             " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`fine_reciept`.`receipt_NO` IS NULL AND `borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
             { type: fine_reciept.sequelize.QueryTypes.SELECT }
         ).then((dfin) => {
-            if (dfin.lenght != 0) {
+            if (dfin != '') {
                 dfin.map((data) => {
                     data.namebooks = helper.subfReplaceToBlank(data.namebooks);
                     Object.assign(data, { 'datediff': moment(data.Due).diff(moment(data.Returns), 'days') });
