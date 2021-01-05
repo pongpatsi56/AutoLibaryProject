@@ -2,6 +2,7 @@ const { borrowandreturn, databib_item, databib, fine_reciept, allmembers } = req
 const { Op } = require('sequelize');
 const helper = require('../helper/stringHelper');
 const moment = require('moment');
+const invno = require('invoice-number');
 
 exports.List_All_BorrowandReturn = async (req, res) => {
     try {
@@ -96,59 +97,26 @@ exports.List_All_BorrowandReturn = async (req, res) => {
         });
 
         ///////////////////// ค่าปรับค้าง /////////////////////////
-        await borrowandreturn.findAll({
-            attributes: ['Librarian_ID', 'Member_ID', 'Barcode', 'Borrow', 'Due', 'Returns'],
-            include: [
-                {
-                    model: databib_item,
-                    attributes: ['Barcode', 'item_status'],
-                    where: { item_status: 'Not Available' },
-
-                    required: false
-                },
-                {
-                    model: databib, as: 'nameBooks',
-                    attributes: ['Subfield'],
-                    where: { Field: '245' },
-                    required: false
-                }
-            ],
-            where: {
-                [Op.and]: [
-                    {
-                        Member_ID: req.params.memid
-
-                    },
-                    {
-                        Returns: {
-                            [Op.lt]: datenow
-                        }
-                    },
-                    {
-                        Due: {
-                            [Op.is]: null
-                        }
-                    }
-                ]
-            }
-        }).then(dfin => {
+        await fine_reciept.sequelize.query(
+            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`fine_reciept`.`receipt_NO` IS NULL AND `borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
+            { type: fine_reciept.sequelize.QueryTypes.SELECT }
+        ).then((dfin) => {
             if (dfin.lenght != 0) {
                 dfin.map((data) => {
-                    data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield);
-                    data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days');
-                    data.dataValues.finebook = datenow.diff(moment(data.Returns), 'days') * 1;
+                    data.namebooks = helper.subfReplaceToBlank(data.namebooks);
+                    Object.assign(data, { 'datediff': moment(data.Due).diff(moment(data.Returns), 'days') });
                 });
                 Object.assign(DataResults, { 'finebooks': dfin });
             } else {
                 DataResults.finebooks = "ไม่พบรายการค่าปรับคงค้าง"
             }
-        });
-        console.log(DataResults);
+        })
+        // console.log(DataResults);
         res.json(DataResults)
 
     } catch (e) {
         console.log(e);
-        return res.status(500).json(e);
+        throw e;
     }
 };
 
@@ -240,33 +208,91 @@ exports.create_Borrow_Data = async (req, res) => {
     }
 };
 
-exports.update_Return_Data = async (req, res) => {
+exports.updateReturn_and_createReceipt_Data = async (req, res) => {
     try {
         const { brcd } = req.body;
         let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
         if (brcd != null && brcd != '') {
+            let Results = {};
+            const bnrdata = await borrowandreturn.findOne({ where: { Barcode: brcd } });
+            const finebaht = moment().diff(moment(bnrdata.Returns), 'days') * 1;
+
+            ////// เช็ครายการยืมที่เกินกำหนด //////
+            if (finebaht != null && finebaht != '' && finebaht != undefined && finebaht > 0) {
+                await fine_reciept.create({
+                    bnr_ID: bnrdata.bnr_ID,
+                    receipt_NO: null,
+                    Amount: finebaht,
+                    fine_type: 'เกินกำหนด',
+                    IsPaid: 'ค้างชำระ',
+                    Description: null
+                }).then(addrecpt => Results.ReceiptData = addrecpt)
+            }
+            //////////////////////////////////
+
             const updBnR = await borrowandreturn.update(
                 { Due: datenow },
                 { where: { Barcode: brcd } }
-            );
+            ).then(updBnR => Results.BorrownReturnData = updBnR);
             const updDBI = await databib_item.update(
                 { item_status: 'Available' },
                 { where: { Barcode: brcd } }
-            );
+            ).then(updDBI => Results.DatabibItemData = updDBI);
             if (updBnR && updDBI) {
                 res.json({
                     status: 200,
-                    Results: { 'BorrownReturnResult': updBnR, 'DatabibItemResult': updDBI },
+                    Results: Results,
                     msg: `Item ${brcd} has Returned `
                 })
             } else { res.json({ msg: `Updating some mistakes.` }) }
         } else {
             res.json({ msg: `BAD REQUEST.` });
         }
-
     } catch (error) {
         console.log('Error:', error);
         res.send(error);
+    }
+};
 
+exports.Update_FineReceipt = async (req, res) => {
+    try {
+        const { receipt_ID, Description } = req.body;
+        let genReceiptNo = await fine_reciept.sequelize.query(
+            'SELECT MAX(receipt_NO) AS maxReceipt_NO FROM fine_reciepts ',
+            { type: fine_reciept.sequelize.QueryTypes.SELECT }
+        );
+        genReceiptNo = invno.InvoiceNumber.next(genReceiptNo[0]['maxReceipt_NO']);
+        console.log(genReceiptNo);
+        await fine_reciept.update(
+            {
+                receipt_NO: genReceiptNo,
+                IsPaid: 'ชำระแล้ว',
+                Description: Description != '' ? Description : null
+            },
+            { where: { receipt_ID: receipt_ID } }
+        ).then(res.json({ msg: "Update Success." })).catch(e => res.json(e));
+    } catch (e) {
+        throw e;
+    }
+};
+
+exports.List_All_FineReceipt = async (req, res) => {
+    try {
+        await fine_reciept.sequelize.query(
+            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
+            { type: fine_reciept.sequelize.QueryTypes.SELECT }
+        ).then((dfin) => {
+            if (dfin.lenght != 0) {
+                dfin.map((data) => {
+                    data.namebooks = helper.subfReplaceToBlank(data.namebooks);
+                    Object.assign(data, { 'datediff': moment(data.Due).diff(moment(data.Returns), 'days') });
+                });
+                res.json({ 'finebooks': dfin });
+            } else {
+                res.json({ 'finebooks': 'ไม่พบรายการค่าปรับ' });
+            }
+        })
+    } catch (e) {
+        throw e;
     }
 };

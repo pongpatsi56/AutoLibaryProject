@@ -1,12 +1,13 @@
 module.exports =(sequelize,DataTypes) => {
     const fine_reciept = sequelize.define("fine_reciept",{
         receipt_ID:{
-            type:DataTypes.STRING(15) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+            type:DataTypes.INTEGER(20),
             allowNull:false,
             validate:{
                 notEmpty:true
             },
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement:true
         },
         bnr_ID:{
             type:DataTypes.INTEGER(20),
@@ -15,47 +16,32 @@ module.exports =(sequelize,DataTypes) => {
                 notEmpty:true
             }
         },
-        Payment_Total:{
+        receipt_NO:{
+            type:DataTypes.STRING(10) + ' CHARSET utf8 COLLATE utf8_unicode_ci'
+        },
+        Amount:{
             type:DataTypes.DOUBLE(45,2),
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
-        Payment_Real:{
-            type:DataTypes.DOUBLE(45,2),
+        fine_type:{
+            type:DataTypes.STRING(10) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
-        Paid:{
-            type:DataTypes.DOUBLE(45,2),
+        IsPaid:{
+            type:DataTypes.STRING(20) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull:false,
             validate:{
                 notEmpty:true
             }
         },
-        Change:{
-            type:DataTypes.DOUBLE(45,2),
-            allowNull:false,
-            validate:{
-                notEmpty:true
-            }
-        },
-        Free:{
-            type:DataTypes.DOUBLE(45,2),
-            allowNull:false,
-            validate:{
-                notEmpty:true
-            }
-        },
-        Discription:{
-            type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci',
-            allowNull:false,
-            validate:{
-                notEmpty:true
-            }
+        Description:{
+            type:DataTypes.TEXT + ' CHARSET utf8 COLLATE utf8_unicode_ci'
         },
     })
     return fine_reciept;
