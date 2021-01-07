@@ -170,18 +170,14 @@ exports.list_databib_searching_pagination = async (req, res) => {
         var getCallNoBib = await databib.findOne({ attributes: [['Subfield', 'CallNo']], where: { Field: '082', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getPicPath = await databib.findOne({ attributes: [['Subfield', 'PicPath']], where: { Field: '960', Bib_ID: GetAllBibID[key].Bib_ID } });
         var getISBN = await databib.findOne({ attributes: [['Subfield', 'ISBN']], where: { Field: '020', Bib_ID: GetAllBibID[key].Bib_ID } });
-        if (getTitleBib) { var title = getTitleBib.toJSON().Title.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var title = '-';
-        if (getAuthorBib) { var author = getAuthorBib.toJSON().Author.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var author = '-';
-        if (getPublishBib) { var publish = getPublishBib.toJSON().Publish.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var publish = '-';
-        if (getCallNoBib) { var callno = getCallNoBib.toJSON().CallNo.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var callno = '-';
-        if (getISBN) { var isbn = getISBN.toJSON().ISBN.replace('$a', '').replace('$b', '').replace('$c', '').replace('$d', '').replace('$e', '') } else var isbn = '-';
+        if (getTitleBib) { var title = helper.subfReplaceToBlank(getTitleBib.toJSON().Title) } else var title = '-';
+        if (getAuthorBib) { var author = helper.subfReplaceToBlank(getAuthorBib.toJSON().Author) } else var author = '-';
+        if (getPublishBib) { var publish = helper.subfReplaceToBlank(getPublishBib.toJSON().Publish) } else var publish = '-';
+        if (getCallNoBib) { var callno = helper.subfReplaceToBlank(getCallNoBib.toJSON().CallNo) } else var callno = '-';
+        if (getISBN) { var isbn = helper.subfReplaceToBlank(getISBN.toJSON().ISBN) } else var isbn = '-';
         if (getPicPath) {
-            var picpath = getPicPath.toJSON().PicPath.replace('$a', '');
-            if (picpath == '') {
-                ////// Set Default NoImgPicture /////
-                picpath = 'https://autolibraryrmutlthesisproject.000webhostapp.com/lib/img/Noimgbook.jpg'
-            }
-        } else var picpath = '-';
+            var picpath =  req.protocol + '://' + req.get('host') + '/uploads/coverbookimg/' + helper.subfReplaceToBlank(getPicPath.toJSON().PicPath);
+        } else var picpath = req.protocol + '://' + req.get('host') + '/uploads/coverbookimg/CoverNotAvailable.jpg';
         ObjDataBib = {
             Bib_ID: GetAllBibID[key].Bib_ID,
             Title: title,
@@ -267,15 +263,10 @@ exports.Upload_coverbook_img = async (req, res) => {
         form.parse(req);
         form.on('fileBegin', (name, file) => {
             const [fileName, fileExt] = file.name.split('.')
-            file.path = path.join('uploads', `${fileName}_${new Date().getTime()}.${fileExt}`)
+            file.path = path.join('uploads/coverbookimg', `${fileName}_${new Date().getTime()}.${fileExt}`)
             console.log('Uploaded ' + file.path);
-            // const addbib = await databib.create({
-            //     Bib_ID: res.body.bibId,
-            //     Field: res.body.field,
-            //     Subfield: '$a' + file.path
-            // });
+            res.json({'path':file.path.split('\\')[2]});
         })
-        res.json('Upload Success.');
     } catch (error) {
         console.log(error);
         res.json(error);
