@@ -4,6 +4,9 @@ const router = express.Router();
 
 const UserControllers = require('../controllers/users');
 
+/* Generate Password to MD5*/
+router.post("/genpass", UserControllers.genPassMD5);
+
 /* User Login */
 router.post("/login", UserControllers.list_user_login);
 

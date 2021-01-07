@@ -40,6 +40,9 @@ app.use("/allmember",  require("./routes/Users"));
 /// Reporting route ///
 app.use("/report",  require("./routes/Report"));
 
+/// Reporting route ///
+app.use("/openimg",  require("./routes/ReadImgFiles"));
+
 
 DB.sequelize.sync().then((req) => {
     app.listen(PORT, err => {

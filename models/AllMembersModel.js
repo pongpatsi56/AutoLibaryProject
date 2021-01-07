@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         Password: {
-            type: DataTypes.STRING(20) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
+            type: DataTypes.STRING(100) + ' CHARSET utf8 COLLATE utf8_unicode_ci',
             allowNull: false,
             validate: {
                 notEmpty: true

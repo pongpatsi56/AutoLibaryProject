@@ -1,5 +1,15 @@
 const { allmembers } = require('../models');
 const { Op } = require('sequelize');
+const md5 = require('md5');
+
+exports.genPassMD5 = (req, res) => {
+  try {
+    res.send(md5(req.body.pass));
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
 
 exports.list_user_login = (req, res) => {
     try {
@@ -7,9 +17,15 @@ exports.list_user_login = (req, res) => {
             attributes: ['member_ID', 'FName', 'LName', 'Position'],
             where: {
                 Username: req.body.username,
-                Password: req.body.password
+                Password: md5(req.body.password)
             }
-        }).then(outp => res.send(outp));
+        }).then(outp => {
+            if (outp) {
+                res.status(200).json(outp);
+            }else{
+                res.status(400).send('Invalid Username or Password.')
+            }
+        });
     } catch (e) {
         console.log(e);
         return res.status(500).json(e);

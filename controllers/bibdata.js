@@ -112,7 +112,7 @@ exports.list_databib_all_infomation = async (req, res) => {
     publish = publish ? publish : 'NoPublishBook';
     callno = callno ? callno : 'NoCallNoBook';
     isbn = isbn ? isbn : 'NoISBNBook';
-    picpath = picpath ? picpath : 'https://autolibraryrmutlthesisproject.000webhostapp.com/lib/img/Noimgbook.jpg';
+    picpath = picpath ? picpath : 'CoverNotAvailable.jpg';
     headerBook.push({
         "Title": title,
         "Author": author,
@@ -176,8 +176,8 @@ exports.list_databib_searching_pagination = async (req, res) => {
         if (getCallNoBib) { var callno = helper.subfReplaceToBlank(getCallNoBib.toJSON().CallNo) } else var callno = '-';
         if (getISBN) { var isbn = helper.subfReplaceToBlank(getISBN.toJSON().ISBN) } else var isbn = '-';
         if (getPicPath) {
-            var picpath =  req.protocol + '://' + req.get('host') + '/uploads/coverbookimg/' + helper.subfReplaceToBlank(getPicPath.toJSON().PicPath);
-        } else var picpath = req.protocol + '://' + req.get('host') + '/uploads/coverbookimg/CoverNotAvailable.jpg';
+            var picpath =  helper.subfReplaceToBlank(getPicPath.toJSON().PicPath);
+        } else var picpath = 'CoverNotAvailable.jpg';
         ObjDataBib = {
             Bib_ID: GetAllBibID[key].Bib_ID,
             Title: title,
