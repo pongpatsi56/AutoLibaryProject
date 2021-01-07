@@ -41,17 +41,25 @@ exports.list_databib_subfieldObj_by_id = async (req, res) => {
 
 exports.list_bibitem_by_id = async (req, res) => {
     try {
+        var result = {};
         if (req.params.id) {
             await sequelize.query(
                 "SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`item_status`, `databib_item`.`item_in`, `databib_item`.`item_out`, `databib_item`.`libid_getitemin`, `databib_item`.`libid_getitemout`, `databib_item`.`item_description`, `databib_item`.`createdAt`, `databib_item`.`updatedAt`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforname`.`Subfield`,'$a',''),'$b',''),'$c',''),'$e',''),'$f',''),'$g',''),'$h','') AS `Booknames`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibsforcallno`.`Subfield`,'$a',''),'$b',''),'$c',''),'$e',''),'$f',''),'$g',''),'$h','') AS `CallNos`FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibsforname` ON `databib_item`.`Bib_ID` = `databibsforname`.`Bib_ID` AND `databibsforname`.`Field` = '245' LEFT OUTER JOIN `databibs` AS `databibsforcallno` ON `databib_item`.`Bib_ID` = `databibsforcallno`.`Bib_ID` AND `databibsforcallno`.`Field` = '082' WHERE `databib_item`.`item_status` <> 'Remove' AND `databib_item`.`Bib_ID` = '" + req.params.id + "'",
                 { type: sequelize.QueryTypes.SELECT })
                 .then(datafield => {
                     if (datafield && datafield != null && datafield != '') {
-                        res.json(datafield)
+                        result.data = datafield
                     } else {
-                        res.json({ msg: `Data does not exist.` })
+                        result.data = { msg: `Data does not exist.` }
                     }
                 });
+            await sequelize.query(
+                'SELECT MAX(Barcode) AS maxBarcode FROM databib_items WHERE Bib_ID ="' + req.params.id + '"',
+                { type: sequelize.QueryTypes.SELECT }
+              ).then((maxval) => {
+                result.maxBarcode = maxval[0]["maxBarcode"];
+              }).catch((e) => (result.maxBarcode = e));
+            res.send(result);
         } else {
             res.json({ msg: `Request must be not empty.` })
         }
