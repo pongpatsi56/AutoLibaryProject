@@ -263,9 +263,10 @@ exports.Upload_coverbook_img = async (req, res) => {
         form.parse(req);
         form.on('fileBegin', (name, file) => {
             const [fileName, fileExt] = file.name.split('.')
-            file.path = path.join('uploads/coverbookimg', `${fileName}_${new Date().getTime()}.${fileExt}`)
+            const ImgName = `${fileName}_${new Date().getTime()}.${fileExt}`;
+            file.path = path.join('uploads/coverbookimg', ImgName)
             console.log('Uploaded ' + file.path);
-            res.json({'path':file.path.split('\\')[2]});
+            res.json({'path':ImgName});
         })
     } catch (error) {
         console.log(error);
