@@ -303,23 +303,28 @@ exports.create_databib_item = async (req, res) => {
         const getBooknames = await databib.findOne({ attributes: ['Subfield'], where: { Bib_ID: bbid, Field: '245' } });
         let booknames = (getBooknames && getBooknames != null && getBooknames != '') ? JSON.stringify(getBooknames["Subfield"]) : bbid;
         if (chkDataBib && chkDataBib != null && chkDataBib != '') {
-            databib_item.create({
+            databib_item
+              .create({
                 Barcode: brcd,
                 Bib_ID: bbid,
                 Copy: copy,
-                item_status: 'Available',
+                item_status: "Available",
                 item_in: datenow,
                 item_out: null,
                 libid_getitemin: lbin,
                 libid_getitemout: null,
-                item_description: ides
-            }).then(responses => {
+                item_description: ides,
+              })
+              .then((responses) => {
                 res.json({
-                    status: 200,
-                    Results: responses,
-                    msg: `Item of ${helper.subfReplaceToBlank(booknames)} has been Added.`
-                })
-            });
+                  status: 200,
+                  Results: responses,
+                  msg: `Item of ${helper.subfReplaceToBlank(
+                    booknames
+                  )} has been Added.`,
+                });
+              })
+              .catch((e) => res.json(e));
         } else {
             res.json({ msg: `This Bibliography has not found.` });
         }
