@@ -5,7 +5,6 @@ const DB = require('./models');
 const app = express();
 const logger = require('./middleware/logger');
 const path = require('path')
-// const { allmembers,admin,subfield,field,indicator,databib,highschoollvl } = require('./models');
 
 const PORT = process.env.PORT || 5000;
 
@@ -42,7 +41,7 @@ app.use("/allmember",  require("./routes/Users"));
 app.use("/report",  require("./routes/Report"));
 
 /// set static image folder ///
-app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
+app.use(express.static(path.join(__dirname, "./uploads")));
 
 
 DB.sequelize.sync().then((req) => {
