@@ -40,8 +40,8 @@ app.use("/allmember",  require("./routes/Users"));
 /// Reporting route ///
 app.use("/report",  require("./routes/Report"));
 
-/// Reporting route ///
-app.use("/openimg",  require("./routes/ReadImgFiles"));
+/// set static image folder ///
+app.use("/uploads", express.static('./uploads'));
 
 
 DB.sequelize.sync().then((req) => {
