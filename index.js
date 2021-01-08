@@ -49,6 +49,7 @@ DB.sequelize.sync().then((req) => {
     app.listen(PORT, err => {
         if (err) return console.log('Cannot lisening at port:', PORT);
         console.log('Server listening on port:', PORT);
+        console.log(path.join(__dirname, "./uploads"));
     })
 });
 
