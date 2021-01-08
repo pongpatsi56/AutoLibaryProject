@@ -42,7 +42,7 @@ app.use("/allmember",  require("./routes/Users"));
 app.use("/report",  require("./routes/Report"));
 
 /// set static image folder ///
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.static(path.join(__dirname, './uploads')))
 
 
 DB.sequelize.sync().then((req) => {
