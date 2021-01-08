@@ -42,14 +42,13 @@ app.use("/allmember",  require("./routes/Users"));
 app.use("/report",  require("./routes/Report"));
 
 /// set static image folder ///
-app.use(express.static(path.join(__dirname, './uploads')))
+app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
 
 
 DB.sequelize.sync().then((req) => {
     app.listen(PORT, err => {
         if (err) return console.log('Cannot lisening at port:', PORT);
         console.log('Server listening on port:', PORT);
-        console.log(path.join(__dirname, "./uploads"));
     })
 });
 
