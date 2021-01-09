@@ -59,7 +59,7 @@ exports.list_userinfo_toEdit = async (req, res) => {
             }
         });
         if (userdata != null && userdata != undefined && userdata != '') {
-            userdata['profile_img'] = (userdata['profile_img'] != null && userdata['profile_img'] != '') ? userdata['profile_img'] : 'A44vyNC.png'
+            userdata['profile_img'] = (userdata['profile_img'] != null && userdata['profile_img'] != '') ? userdata['profile_img'] : 'https://i.imgur.com/A44vyNC.png'
             res.json(userdata);
         } else {
             res.json({ msg: "User not found." });

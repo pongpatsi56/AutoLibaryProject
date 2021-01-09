@@ -112,7 +112,7 @@ exports.list_databib_all_infomation = async (req, res) => {
     publish = publish ? publish : '-';
     callno = callno ? callno : '-';
     isbn = isbn ? isbn : '-';
-    picpath = picpath ? picpath : 'sMk4opd.jpg';
+    picpath = picpath ? picpath : 'https://i.imgur.com/sMk4opd.jpg';
     headerBook.push({
         "Title": title,
         "Author": author,
@@ -177,8 +177,8 @@ exports.list_databib_searching_pagination = async (req, res) => {
         if (getISBN) { var isbn = helper.subfReplaceToBlank(getISBN.toJSON().ISBN) } else var isbn = '-';
         if (getPicPath) {
             var picpath =  helper.subfReplaceToBlank(getPicPath.toJSON().PicPath);
-            if (picpath == "") { picpath = "sMk4opd.jpg" }
-        } else var picpath = 'sMk4opd.jpg';
+            if (picpath == "") { picpath = "https://i.imgur.com/sMk4opd.jpg" }
+        } else var picpath = 'https://i.imgur.com/sMk4opd.jpg';
         ObjDataBib = {
             Bib_ID: GetAllBibID[key].Bib_ID,
             Title: title,
