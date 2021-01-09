@@ -1,6 +1,8 @@
 const { allmembers } = require('../models');
 const { Op } = require('sequelize');
 const md5 = require('md5');
+const jwt = require('jsonwebtoken');
+const fs = require('fs') ;
 
 exports.genPassMD5 = (req, res) => {
   try {
@@ -20,10 +22,15 @@ exports.list_user_login = (req, res) => {
                 Password: md5(req.body.password)
             }
         }).then(outp => {
-            if (outp) {
-                res.status(200).json(outp);
-            }else{
-                res.status(400).send('Invalid Username or Password.')
+            if (outp != null && outp != "") {
+                const accessToken = jwt.sign({outp}, fs.readFileSync(__dirname+'/../middleware/private.key'))
+              res.status(200).json({
+                  status:200,
+                  accessToken:accessToken,
+                  Position: outp['Position']
+              });
+            } else {
+              res.status(400).send("Invalid Username or Password.");
             }
         });
     } catch (e) {
@@ -72,14 +79,15 @@ exports.list_userinfo_toEdit = async (req, res) => {
 
 exports.update_edituser_byuser = (req, res) => {
     try {
-        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom } = req.body;
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom, profile_img } = req.body;
         allmembers.update(
             {
                 mem_Citizenid: mem_Citizenid,
                 FName: FName,
                 LName: LName,
                 Class: Class,
-                Classroom: Classroom
+                Classroom: Classroom,
+                profile_img: profile_img
             },
             { where: { member_ID: member_ID } }
         ).then(res.json({ msg: 'User Updated.' }));

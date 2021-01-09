@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const authorize = require('../middleware/authorize');
 
 
 const UserControllers = require('../controllers/users');
@@ -10,11 +11,11 @@ router.post("/genpass", UserControllers.genPassMD5);
 /* User Login */
 router.post("/login", UserControllers.list_user_login);
 
-/* User Login */
+/* Check exist member id*/
 router.get("/checkmemberexist/:memid", UserControllers.check_memid);
 
 /*List DataUser to Edit  */
-router.get("/listedituser/:memid", UserControllers.list_userinfo_toEdit);
+router.get("/listedituser/:memid", authorize , UserControllers.list_userinfo_toEdit);
 
 /* Edit DataUser by User */
 router.put("/edituserbyuser", UserControllers.update_edituser_byuser);
