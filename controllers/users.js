@@ -99,7 +99,7 @@ exports.update_edituser_byuser = (req, res) => {
 
 exports.update_edituser_bylib = (req, res) => {
     try {
-        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom , Position } = req.body;
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom , Position, profile_img } = req.body;
         allmembers.update(
             {
                 mem_Citizenid: mem_Citizenid,
@@ -107,7 +107,8 @@ exports.update_edituser_bylib = (req, res) => {
                 LName: LName,
                 Class: Class,
                 Classroom: Classroom,
-                Position: Position
+                Position: Position,
+                profile_img:profile_img
             },
             { where: { member_ID: member_ID } }
         ).then(res.json({ msg: 'User Updated.' }));
@@ -120,7 +121,7 @@ exports.update_edituser_bylib = (req, res) => {
 exports.list_All_UserData_toManage = (req, res) => {
     try {
         allmembers.findAll({
-            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
+            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom', 'profile_img'],
             where: {
                 Position: {
                     [Op.or]: ['student', 'personnel']
@@ -136,7 +137,7 @@ exports.list_All_UserData_toManage = (req, res) => {
 
 exports.create_New_User = async (req, res) => {
     try {
-        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom, Position } = req.body;
+        const { member_ID, mem_Citizenid, FName, LName, Class, Classroom, Position, profile_img  } = req.body;
         await allmembers.create({
             member_ID: member_ID,
             mem_Citizenid: mem_Citizenid,
@@ -146,7 +147,8 @@ exports.create_New_User = async (req, res) => {
             Password: mem_Citizenid,
             Position: Position,
             Class: Class,
-            Classroom: Classroom
+            Classroom: Classroom,
+            profile_img:profile_img
         }).then(responses => {
             res.json({
                 status: 200,
