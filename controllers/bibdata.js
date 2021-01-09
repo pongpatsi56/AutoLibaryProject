@@ -177,7 +177,8 @@ exports.list_databib_searching_pagination = async (req, res) => {
         if (getISBN) { var isbn = helper.subfReplaceToBlank(getISBN.toJSON().ISBN) } else var isbn = '-';
         if (getPicPath) {
             var picpath =  helper.subfReplaceToBlank(getPicPath.toJSON().PicPath);
-        } else var picpath = 'CoverNotAvailable.jpg';
+            if (picpath == "") { picpath = "sMk4opd.jpg" }
+        } else var picpath = 'sMk4opd.jpg';
         ObjDataBib = {
             Bib_ID: GetAllBibID[key].Bib_ID,
             Title: title,

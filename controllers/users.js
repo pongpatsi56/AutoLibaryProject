@@ -52,13 +52,14 @@ exports.check_memid = async (req, res) => {
 
 exports.list_userinfo_toEdit = async (req, res) => {
     try {
-        const userdata = await allmembers.findOne({
-            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom'],
+        let userdata = await allmembers.findOne({
+            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom','profile_img'],
             where: {
                 member_ID: req.params.memid
             }
         });
         if (userdata != null && userdata != undefined && userdata != '') {
+            userdata['profile_img'] = (userdata['profile_img'] != null && userdata['profile_img'] != '') ? userdata['profile_img'] : 'A44vyNC.png'
             res.json(userdata);
         } else {
             res.json({ msg: "User not found." });

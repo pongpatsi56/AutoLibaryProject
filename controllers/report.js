@@ -1,8 +1,10 @@
 const { borrowandreturn, databib_item, databib, allmembers } = require('../models');
 const helper = require('../helper/stringHelper');
 
+////////// รายงานข้อมูลสมาชิก ///////////
 exports.borrowandreturn_of_User_datareport = async (req, res) => {
     try {
+        const title_report = "รายงานข้อมูลสมาชิก";
         const member_ID = req.body.member_ID;
         var datareport = await borrowandreturn.findAll({
             include: [
@@ -43,21 +45,30 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
                 member_ID: member_ID
             }
         });
-        if (datareport != '' && datareport != null && datareport != undefined) {
-            for (const key in datareport) {
-                datareport[key].nameBooks.Subfield = helper.subfReplaceToBlank(datareport[key].nameBooks.Subfield);
-                if (datareport[key].ISBNs) {
-                    datareport[key].ISBNs.Subfield = helper.subfReplaceToBlank(datareport[key].ISBNs.Subfield);
-                }
+        if (datareport != "" && datareport != null && datareport != undefined) {
+          for (const key in datareport) {
+            datareport[key].nameBooks.Subfield = helper.subfReplaceToBlank(
+              datareport[key].nameBooks.Subfield
+            );
+            if (datareport[key].ISBNs) {
+              datareport[key].ISBNs.Subfield = helper.subfReplaceToBlank(
+                datareport[key].ISBNs.Subfield
+              );
             }
-            res.json({
-                Title: "รายงานข้อมูลสมาชิก",
-                Member: member_ID,
-                Total: amount,
-                Data: datareport,
-            });
+          }
+          res.json({
+            Title: title_report,
+            Member: member_ID,
+            Total: amount,
+            Data: datareport,
+          });
         } else {
-            res.json({ msg: 'Not Found DataReport' })
+          res.json({
+            Title: title_report,
+            DateThai: helper.convdatethai(date),
+            Total: amount,
+            Data: "ไม่พบข้อมูล" + title_report,
+          });
         }
     } catch (e) {
         console.log(e);
@@ -65,8 +76,10 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
     }
 };
 
+////// รายงานสถิติข้อมูลการยืม-คืนหนังสือ ////////
 exports.borrowandreturn_datareport = async (req, res) => {
     try {
+        const title_report = "รายงานสถิติข้อมูลการยืม-คืนหนังสือ";
         const date = new Date(req.body.date)
         var datareport = await borrowandreturn.findAll({
             include: [
@@ -115,13 +128,18 @@ exports.borrowandreturn_datareport = async (req, res) => {
                 }
             }
             res.json({
-                Title: "รายงานสถิติข้อมูลการยืม-คืนหนังสือ",
+                Title: title_report,
                 DateThai: helper.convdatethai(date),
                 Total: amount,
                 Data: datareport,
             });
         } else {
-            res.json({ msg: 'Not Found DataReport' })
+            res.json({
+                Title: title_report,
+                DateThai: helper.convdatethai(date),
+                Total: amount,
+                Data: 'ไม่พบข้อมูล' + title_report
+            })
         }
     } catch (e) {
         console.log(e);
@@ -129,8 +147,10 @@ exports.borrowandreturn_datareport = async (req, res) => {
     }
 };
 
+//////// รายงานหนังสือค้างส่ง /////////
 exports.notReturn_datareport = async (req, res) => {
     try {
+        const title_report = "รายงานหนังสือค้างส่ง";
         const date = new Date(req.body.date)
         var datareport = await borrowandreturn.findAll({
             include: [
@@ -180,13 +200,18 @@ exports.notReturn_datareport = async (req, res) => {
                 }
             }
             res.json({
-                Title: "รายงานหนังสือค้างส่ง",
+                Title: title_report,
                 DateThai: helper.convdatethai(date),
                 Total: amount,
                 Data: datareport,
             });
         } else {
-            res.json({ msg: 'Not Found DataReport' })
+            res.json({
+                Title: title_report,
+                DateThai: helper.convdatethai(date),
+                Total: amount,
+                Data: 'ไม่พบข้อมูล' + title_report,
+                })
         }
 
     } catch (e) {
