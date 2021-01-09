@@ -107,12 +107,12 @@ exports.list_databib_all_infomation = async (req, res) => {
             picpath = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield)
         }
     }
-    title = (title) ? title : 'NoTitleBook';
-    author = author ? author : 'NoAuthorBook';
-    publish = publish ? publish : 'NoPublishBook';
-    callno = callno ? callno : 'NoCallNoBook';
-    isbn = isbn ? isbn : 'NoISBNBook';
-    picpath = picpath ? picpath : 'CoverNotAvailable.jpg';
+    title = (title) ? title : '-';
+    author = author ? author : '-';
+    publish = publish ? publish : '-';
+    callno = callno ? callno : '-';
+    isbn = isbn ? isbn : '-';
+    picpath = picpath ? picpath : 'sMk4opd.jpg';
     headerBook.push({
         "Title": title,
         "Author": author,
