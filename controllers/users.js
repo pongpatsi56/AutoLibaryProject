@@ -26,16 +26,22 @@ exports.list_user_login = (req, res) => {
                 const accessToken = jwt.sign({outp}, fs.readFileSync(__dirname+'/../middleware/private.key'))
               res.status(200).json({
                   status:200,
+                  response:'OK',
+                  message:'Success',
                   accessToken:accessToken,
                   Position: outp['Position']
               });
             } else {
-              res.status(400).send("Invalid Username or Password.");
+              res.status(200).json({
+                status:200,
+                response:'False',
+                message:'Invalid Username or Password.'
+            });
             }
         });
     } catch (e) {
         console.log(e);
-        return res.status(500).json(e);
+        throw e;
     }
 };
 
