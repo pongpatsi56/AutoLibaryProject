@@ -25,6 +25,7 @@ router.put("/edituserbylib", UserControllers.update_edituser_bylib);
 
 /* List All Datauser to Manage by Admin & Librarian */
 router.get("/listalluser", UserControllers.list_All_UserData_toManage);
+router.get("/listalluseradmin", UserControllers.list_All_UserData_AdminManage);
 
 /* Add New User by Admin & Librarian */
 router.post("/adduser", UserControllers.create_New_User);

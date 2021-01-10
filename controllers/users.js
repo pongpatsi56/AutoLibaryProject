@@ -149,6 +149,22 @@ exports.list_All_UserData_toManage = (req, res) => {
         throw e;
     }
 };
+exports.list_All_UserData_AdminManage = (req, res) => {
+    try {
+        allmembers.findAll({
+            attributes: ['member_ID', 'mem_Citizenid', 'FName', 'LName', 'Position', 'Class', 'Classroom', 'profile_img'],
+            where: {
+                Position: {
+                    [Op.or]: ['librarian', 'student', 'personnel']
+                  }
+            },
+            order:['Position']
+        }).then((output) => res.json(output));
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
 
 exports.create_New_User = async (req, res) => {
     try {
