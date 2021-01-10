@@ -15,21 +15,30 @@ exports.genPassMD5 = (req, res) => {
 
 exports.list_user_login = (req, res) => {
     try {
-        allmembers.findOne({
-            attributes: ['member_ID', 'FName', 'LName', 'Position'],
-            where: {
-                Username: req.body.username,
-                Password: md5(req.body.password)
-            }
-        }).then(outp => {
-            if (outp != null && outp != "") {
-                const accessToken = jwt.sign({outp}, fs.readFileSync(__dirname+'/../middleware/private.key'))
+        allmembers.sequelize.query(
+            'SELECT member_ID,mem_Citizenid,FName,LName,Position,profile_img,Class,Classroom FROM allmembers WHERE Username = "' + req.body.username + '" AND Password = "' + md5(req.body.password) + '"',
+            { type: allmembers.sequelize.QueryTypes.SELECT }
+        )
+        // .then((maxBibId) => {
+        //     // Object.assign(maxBibId,{maxID : parseInt(maxID) + 1})
+        //     res.send(maxBibId);
+        // })
+        // allmembers.findOne({
+        //     attributes: ['member_ID', 'FName', 'LName', 'Position'],
+        //     where: {
+        //         Username: req.body.username,
+        //         Password: md5(req.body.password)
+        //     }
+        // })
+        .then(Data => {
+            if (Data != null && Data != "") {
+                const accessToken = jwt.sign({Data}, fs.readFileSync(__dirname+'/../middleware/private.key'))
               res.status(200).json({
                   status:200,
                   response:'OK',
                   message:'Success',
                   accessToken:accessToken,
-                  Position: outp['Position']
+                  Data
               });
             } else {
               res.status(200).json({
