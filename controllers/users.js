@@ -16,7 +16,7 @@ exports.genPassMD5 = (req, res) => {
 exports.list_user_login = (req, res) => {
     try {
         allmembers.sequelize.query(
-            'SELECT member_ID,mem_Citizenid,FName,LName,Position,profile_img,Class,Classroom FROM allmembers WHERE Username = "' + req.body.username + '" AND Password = "' + md5(req.body.password) + '"',
+            'SELECT member_ID,mem_Citizenid,FName,LName,Position,profile_img,Class,Classroom FROM allmembers WHERE Username = "' + req.body.username + '" AND Password = "' + md5(req.body.password) + '" LIMIT 1',
             { type: allmembers.sequelize.QueryTypes.SELECT }
         )
         // .then((maxBibId) => {
@@ -32,6 +32,7 @@ exports.list_user_login = (req, res) => {
         // })
         .then(Data => {
             if (Data != null && Data != "") {
+                Data[0]['profile_img'] = (Data[0]['profile_img'] != null && Data[0]['profile_img'] != '') ? Data[0]['profile_img'] : 'https://i.imgur.com/A44vyNC.png'
                 const accessToken = jwt.sign({Data}, fs.readFileSync(__dirname+'/../middleware/private.key'))
               res.status(200).json({
                   status:200,
