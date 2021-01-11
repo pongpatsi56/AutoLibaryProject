@@ -171,42 +171,21 @@ exports.List_itemBooktoBorrow = (req, res) => {
 
 exports.create_Borrow_Data = async (req, res) => {
     try {
-        const { libid, memid, brcd } = req.body;
         let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
         let date7day = moment(datenow).add(7, 'days').format('YYYY-MM-DD');
-        const getBibid = await databib_item.findOne({ attributes: ['Bib_ID'], where: { Barcode: brcd } });
-
-        // res.send(`${libid, memid, brcd} :: ${datenow} :: ${date7day} :: ${getBibid['Bib_ID']}`);
-        if (memid != null && memid != '' && brcd != null && brcd != '') {
-            await borrowandreturn.create({
-                Librarian_ID: libid,
-                Member_ID: memid,
-                Barcode: brcd,
-                Borrow: datenow,
-                item_in: datenow,
-                Due: null,
-                Returns: date7day,
-                Bib_ID: getBibid['Bib_ID']
-            }).then(rescreate => {
-                databib_item.update(
-                    { item_status: 'Not Available' },
-                    { where: { Barcode: brcd } }
-                ).then(() => {
-                    res.json({
-                        status: 200,
-                        Results: { 'CreateBorrowResult': rescreate, 'UpdateStatusBookResult': 'Book has borrowed' },
-                        msg: `Item ${brcd} Borrowed by ${memid}`
-                    })
-                })
-            });
+        const resObjBody = req.body.databorrow;
+        if (resObjBody && resObjBody != null && resObjBody != '') {
+            for (const key in resObjBody) {
+                const getBibid = await databib_item.findOne({ attributes: ['Bib_ID'], where: { Barcode: resObjBody[key]['Barcode'] } });
+                Object.assign(resObjBody[key], { "Borrow": datenow,"item_in": datenow,"Due": null,"Returns": date7day,"Bib_ID": getBibid['Bib_ID'] });
+            }
+            await borrowandreturn.bulkCreate(resObjBody).then(outp => res.json(outp));
         } else {
-            res.json({ msg: `Books or Member must not be Empty` });
+            res.json({ msg: `Bad Request.` })
         }
-
     } catch (error) {
         console.log('Error:', error);
         res.send(error);
-
     }
 };
 
