@@ -40,7 +40,8 @@ exports.List_All_BorrowandReturn = async (req, res) => {
         }).then(dbnr => {
             if (dbnr != '') {
                 dbnr.map((data) => {
-                    data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield)
+                    data.dataValues.nameBooks= helper.subfReplaceToBlank(data.nameBooks.Subfield);
+                    data.dataValues.databib_item = data.databib_item.item_status;
                 });
                 Object.assign(DataResults, { 'bnr_history': dbnr })
             } else {
@@ -87,7 +88,8 @@ exports.List_All_BorrowandReturn = async (req, res) => {
         }).then(dborw => {
             if (dborw != '') {
                 dborw.map((data) => {
-                    data.nameBooks.Subfield = helper.subfReplaceToBlank(data.nameBooks.Subfield);
+                    data.dataValues.nameBooks= helper.subfReplaceToBlank(data.nameBooks.Subfield);
+                    data.dataValues.databib_item = data.databib_item.item_status;
                     data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days') != 0 ? datenow.diff(moment(data.Returns), 'days') : "ยังไม่เกินกำหนด";
                 });
                 Object.assign(DataResults, { 'databorrow': dborw });
