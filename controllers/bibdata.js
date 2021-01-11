@@ -72,11 +72,15 @@ exports.list_bibitem_by_id = async (req, res) => {
 exports.list_databib_all_infomation = async (req, res) => {
     var resData = [];
     var headerBook = [];
-    var getMarc = await databib.findAll({
-        attributes: ['Bib_ID', 'Field', 'Indicator1', 'Indicator2', 'Subfield'],
-        where: { Bib_ID: req.params.id },
-        order: ['Field']
-    });
+    // var getMarc = await databib.findAll({
+    //     attributes: ['Bib_ID', 'Field', 'Indicator1', 'Indicator2', 'Subfield'],
+    //     where: { Bib_ID: req.params.id },
+    //     order: ['Field']
+    // });
+    var getMarc = await databib.sequelize.query(
+        'SELECT `Bib_ID`, `Field`, `Indicator1`, `Indicator2`, `Subfield` FROM `databibs` AS `databib` WHERE `databib`.`Bib_ID` = "'+req.params.id+'" ORDER BY ABS(`databib`.`Field`) ',
+        { type: databib.sequelize.QueryTypes.SELECT }
+        )
     var getItemBook = await databib_item.findAll({
         attributes: ['Bib_ID', 'Barcode', 'Copy', 'item_status'],
         where: { Bib_ID: req.params.id }
@@ -88,23 +92,23 @@ exports.list_databib_all_infomation = async (req, res) => {
     ///// region HeadBook /////
     for (const key in Object.keys(getMarc)) {
         var title, author, publish, callno, isbn, picpath;
-        if (parseInt(getMarc[key].dataValues.Field) === parseInt(245)) {
-            title = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+        if (parseInt(getMarc[key].Field) === parseInt(245)) {
+            title = helper.subfReplaceToBlank(getMarc[key].Subfield.replace('/', ''))
         }
-        if (parseInt(getMarc[key].dataValues.Field) === parseInt(100)) {
-            author = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+        if (parseInt(getMarc[key].Field) === parseInt(100)) {
+            author = helper.subfReplaceToBlank(getMarc[key].Subfield.replace('/', ''))
         }
-        if (parseInt(getMarc[key].dataValues.Field) === parseInt(260)) {
-            publish = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+        if (parseInt(getMarc[key].Field) === parseInt(260)) {
+            publish = helper.subfReplaceToBlank(getMarc[key].Subfield.replace('/', ''))
         }
-        if (parseInt(getMarc[key].dataValues.Field) === parseInt(082)) {
-            callno = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+        if (parseInt(getMarc[key].Field) === parseInt(082)) {
+            callno = helper.subfReplaceToBlank(getMarc[key].Subfield.replace('/', ''))
         }
-        if (parseInt(getMarc[key].dataValues.Field) === parseInt(020)) {
-            isbn = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield.replace('/', ''))
+        if (parseInt(getMarc[key].Field) === parseInt(020)) {
+            isbn = helper.subfReplaceToBlank(getMarc[key].Subfield.replace('/', ''))
         }
-        if (parseInt(getMarc[key].dataValues.Field) === parseInt(960)) {
-            picpath = helper.subfReplaceToBlank(getMarc[key].dataValues.Subfield)
+        if (parseInt(getMarc[key].Field) === parseInt(960)) {
+            picpath = helper.subfReplaceToBlank(getMarc[key].Subfield)
         }
     }
     title = (title) ? title : '-';
