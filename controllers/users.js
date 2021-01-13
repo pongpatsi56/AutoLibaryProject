@@ -176,7 +176,7 @@ exports.create_New_User = async (req, res) => {
             FName: FName,
             LName: LName,
             Username: member_ID,
-            Password: mem_Citizenid,
+            Password: md5(mem_Citizenid),
             Position: Position,
             Class: Class,
             Classroom: Classroom,
