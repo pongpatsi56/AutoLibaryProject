@@ -73,3 +73,45 @@ exports.create_template_databib = async (req, res) => {
         throw e;
     }
 };
+
+exports.delete_template_databib = async (req, res) => {
+    try {
+    var idTemp = '';
+    var idTempDatabib = [];
+    ///////////// find template //////////////////////////
+    await template.findAll({
+        attributes: ['template_ID'],
+        include: [
+            {
+                model: temp_databib,
+                attributes:['tempdatabib_ID'],
+                required: false
+            }
+        ],
+        where: {
+            template_ID: req.params.templateId
+        }
+    }).then(resource =>{
+        idTempDatabib = resource[0].temp_databibs.map(val=>{
+            return val.tempdatabib_ID;
+        });
+        idTemp = resource[0].template_ID;
+    })
+
+    ///////////// go Delete ////////////////////
+    await template.destroy({
+        where: {
+            template_ID: idTemp
+        }
+    }).then(() => {
+        temp_databib.destroy({
+            where: {
+                tempdatabib_ID: idTempDatabib
+            }
+        }).then(res.json({response:'OK',msg:'Delete Success.'}))
+    });
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};

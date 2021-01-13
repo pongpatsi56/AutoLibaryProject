@@ -13,5 +13,8 @@ router.get("/listtemplatebib/:templateId", BibTemplateControllers.list_templateb
 /* create template*/
 router.post("/addtempbib", BibTemplateControllers.create_template_databib);
 
+/* delete template*/
+router.delete("/deltempbib/:templateId", BibTemplateControllers.delete_template_databib);
+
 
 module.exports = router;
