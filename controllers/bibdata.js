@@ -69,6 +69,19 @@ exports.list_bibitem_by_id = async (req, res) => {
     }
 };
 
+exports.check_bibitem_exist = (req, res) => {
+    sequelize.query(
+        'SELECT * FROM databibs WHERE Bib_ID ="' + req.params.id + '" LIMIT 1',
+        { type: sequelize.QueryTypes.SELECT }
+    ).then((maxBibId) => {
+        if (maxBibId && maxBibId != '' && maxBibId != undefined) {
+            res.send(true);
+        } else {
+            res.send(false);
+        }
+    })
+};
+
 exports.list_databib_all_infomation = async (req, res) => {
     var resData = [];
     var headerBook = [];

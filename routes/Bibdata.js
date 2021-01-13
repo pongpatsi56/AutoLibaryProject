@@ -13,6 +13,8 @@ router.get("/subfObjDatabib/:id", BibDataControllers.list_databib_subfieldObj_by
 
 // get bibitem by id
 router.get("/bibitem/:id", BibDataControllers.list_bibitem_by_id);
+// Check bibitem Exist by id
+router.get("/checkbibitem/:id", BibDataControllers.check_bibitem_exist);
 
 // get bibitem for InfomationPage
 router.get("/allbib/:id", BibDataControllers.list_databib_all_infomation);
