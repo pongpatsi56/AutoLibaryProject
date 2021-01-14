@@ -22,6 +22,9 @@ router.post("/addborrow", BorrowandReturnControllers.create_Borrow_Data);
 /* Update Borrow and Create fine_receipt by librarian */
 router.put("/updreturn", BorrowandReturnControllers.updateReturn_and_createReceipt_Data);
 
+/*Multi Update Borrow and Create fine_receipt by librarian */
+router.put("/multiupdreturn", BorrowandReturnControllers.updateReturn_and_createReceipt_Data_Multiple);
+
 /* Update fine_receipt by librarian */
 router.put("/updatefinereceipt", BorrowandReturnControllers.Update_FineReceipt);
 

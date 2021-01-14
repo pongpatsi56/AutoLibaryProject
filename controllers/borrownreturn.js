@@ -3,6 +3,7 @@ const { Op } = require('sequelize');
 const helper = require('../helper/stringHelper');
 const moment = require('moment');
 const invno = require('invoice-number');
+moment.locale('th');
 
 exports.List_All_BorrowandReturn = async (req, res) => {
     try {
@@ -40,6 +41,9 @@ exports.List_All_BorrowandReturn = async (req, res) => {
         }).then(dbnr => {
             if (dbnr != '') {
                 dbnr.map((data) => {
+                    data.dataValues.Borrow= moment(data.Borrow).format('ll');
+                    data.dataValues.Due= moment(data.Due).format('ll');
+                    data.dataValues.Returns= moment(data.Returns).format('ll');
                     data.dataValues.nameBooks= helper.subfReplaceToBlank(data.nameBooks.Subfield);
                     data.dataValues.databib_item = data.databib_item.item_status;
                 });
@@ -56,8 +60,6 @@ exports.List_All_BorrowandReturn = async (req, res) => {
                 {
                     model: databib_item,
                     attributes: ['Barcode', 'item_status'],
-                    where: { item_status: 'Not Available' },
-
                     required: false
                 },
                 {
@@ -74,11 +76,6 @@ exports.List_All_BorrowandReturn = async (req, res) => {
 
                     },
                     {
-                        Returns: {
-                            [Op.lt]: datenow
-                        }
-                    },
-                    {
                         Due: {
                             [Op.is]: null
                         }
@@ -88,9 +85,11 @@ exports.List_All_BorrowandReturn = async (req, res) => {
         }).then(dborw => {
             if (dborw != '') {
                 dborw.map((data) => {
+                    data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days') > 0 ? datenow.diff(moment(data.Returns), 'days') +' วัน' : "ยังไม่เกินกำหนด";
+                    data.dataValues.Borrow= moment(data.Borrow).format('ll');
+                    data.dataValues.Returns= moment(data.Returns).format('ll');
                     data.dataValues.nameBooks= helper.subfReplaceToBlank(data.nameBooks.Subfield);
                     data.dataValues.databib_item = data.databib_item.item_status;
-                    data.dataValues.datediff = datenow.diff(moment(data.Returns), 'days') != 0 ? datenow.diff(moment(data.Returns), 'days') : "ยังไม่เกินกำหนด";
                 });
                 Object.assign(DataResults, { 'databorrow': dborw });
             } else {
@@ -100,13 +99,16 @@ exports.List_All_BorrowandReturn = async (req, res) => {
 
         ///////////////////// ค่าปรับค้าง /////////////////////////
         await fine_reciept.sequelize.query(
-            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`fine_reciept`.`receipt_NO` IS NULL AND `borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
+            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`fine_reciept`.`receipt_NO` IS NULL AND `borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
             { type: fine_reciept.sequelize.QueryTypes.SELECT }
         ).then((dfin) => {
             if (dfin != '') {
                 dfin.map((data) => {
                     data.namebooks = helper.subfReplaceToBlank(data.namebooks);
-                    Object.assign(data, { 'datediff': moment(data.Due).diff(moment(data.Returns), 'days') });
+                    Object.assign(data, { 'datediff': moment(data.Due).diff(moment(data.Returns), 'days') + ' วัน'});
+                    data.Due= moment(data.Due).format('ll');
+                    data.Returns= moment(data.Returns).format('ll');
+                    data.Amount= data.Amount +' บาท';
                 });
                 Object.assign(DataResults, { 'finebooks': dfin });
             } else {
@@ -177,6 +179,7 @@ exports.create_Borrow_Data = async (req, res) => {
         if (resObjBody && resObjBody != null && resObjBody != '') {
             for (const key in resObjBody) {
                 const getBibid = await databib_item.findOne({ attributes: ['Bib_ID'], where: { Barcode: resObjBody[key]['Barcode'] } });
+                await databib_item.update({ item_status: 'Not Available' },{ where: { Barcode: resObjBody[key]['Barcode'] } });
                 Object.assign(resObjBody[key], { "Borrow": datenow,"item_in": datenow,"Due": null,"Returns": date7day,"Bib_ID": getBibid['Bib_ID'] });
             }
             await borrowandreturn.bulkCreate(resObjBody).then(outp => res.json(outp));
@@ -235,6 +238,58 @@ exports.updateReturn_and_createReceipt_Data = async (req, res) => {
     }
 };
 
+exports.updateReturn_and_createReceipt_Data_Multiple = async (req, res) => {
+    try {
+        const { Barcode } = req.body;
+        let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
+        if (Barcode != null && Barcode != '') {
+            let Results = {};
+            let finedata = [];
+
+            ////// เช็ครายการยืมที่เกินกำหนด ถ้ารายการไหนเกิน ให้บันทึกค่าปรับ //////
+            await borrowandreturn.findAll({ where: { Barcode: Barcode } }).then(bnrdata=>{
+                bnrdata.map(dataval=>{
+                    const finebaht = moment().diff(moment(dataval.Returns), 'days') * 1; ////// วันละ 1 บาท
+                    if (finebaht != null && finebaht != '' && finebaht != undefined && finebaht > 0) {
+                            finedata.push({
+                            bnr_ID: dataval.bnr_ID,
+                            receipt_NO: null,
+                            Amount: finebaht,
+                            fine_type: "เกินกำหนด",
+                            IsPaid: "ค้างชำระ",
+                            Description: null,
+                            });
+                    }
+                })
+                fine_reciept.bulkCreate(finedata).then(addrecpt => Results.ReceiptData = addrecpt);
+                console.log(finedata);
+            });
+            //////////////////////////////////
+
+            const updBnR = await borrowandreturn.update(
+                { Due: datenow },
+                { where: { Barcode: Barcode } }
+            ).then(updBnR => Results.BorrownReturnData = updBnR);
+            const updDBI = await databib_item.update(
+                { item_status: 'Available' },
+                { where: { Barcode: Barcode } }
+            ).then(updDBI => Results.DatabibItemData = updDBI);
+            if (updBnR && updDBI) {
+                res.json({
+                    response: "OK",
+                    Results: Results,
+                    msg: `Item ${Barcode} has Returned `
+                })
+            } else { res.json({ msg: `Updating some mistakes.` }) }
+        } else {
+            res.json({ msg: `BAD REQUEST.` });
+        }
+    } catch (error) {
+        console.log('Error:', error);
+        res.send(error);
+    }
+};
+
 exports.Update_FineReceipt = async (req, res) => {
     try {
         const { receipt_ID, Description } = req.body;
@@ -265,8 +320,11 @@ exports.List_All_FineReceipt = async (req, res) => {
         ).then((dfin) => {
             if (dfin.lenght != 0) {
                 dfin.map((data) => {
+                    Object.assign(data, { 'datediff': moment(data.Due).diff(moment(data.Returns), 'days') + ' วัน' });
                     data.namebooks = helper.subfReplaceToBlank(data.namebooks);
-                    Object.assign(data, { 'datediff': moment(data.Due).diff(moment(data.Returns), 'days') });
+                    data.Due= moment(data.Due).format('ll');
+                    data.Returns= moment(data.Returns).format('ll');
+                    data.Amount= data.Amount +' บาท';
                 });
                 res.json({ 'finebooks': dfin });
             } else {
