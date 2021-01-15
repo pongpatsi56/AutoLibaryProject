@@ -70,6 +70,7 @@ exports.subfloopToObject = (paramstr) => {
 exports.convdatethai = (rawdate) => {
     if (rawdate) {
         const local = rawdate.toLocaleDateString('th-TH', {
+            timeZone:'Asia/Bangkok',
             year: 'numeric',
             month: 'long',
             day: 'numeric',

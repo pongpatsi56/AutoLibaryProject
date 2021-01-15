@@ -103,14 +103,14 @@ exports.notReturn_datareport = async (req, res) => {
             }
             res.json({
                 Title: title_report,
-                DateThai: moment(datet).format('LL'),
+                DateThai: helper.convdatethai(datet),
                 Total: amount,
                 Data: datareport,
             });
         } else {
             res.json({
                 Title: title_report,
-                DateThai: moment(datet).format('LL'),
+                DateThai: helper.convdatethai(datet),
                 Total: amount,
                 Data: 'ไม่พบข้อมูล' + title_report,
                 })
