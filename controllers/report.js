@@ -65,7 +65,7 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
         } else {
           res.json({
             Title: title_report,
-            DateThai: helper.convdatethai(date),
+            DateThai: moment(date).format('LL'),
             Total: amount,
             Data: "ไม่พบข้อมูล" + title_report,
           });
@@ -103,14 +103,14 @@ exports.notReturn_datareport = async (req, res) => {
             }
             res.json({
                 Title: title_report,
-                DateThai: helper.convdatethai(datet),
+                DateThai: moment(datet).format('LL'),
                 Total: amount,
                 Data: datareport,
             });
         } else {
             res.json({
                 Title: title_report,
-                DateThai: helper.convdatethai(datet),
+                DateThai: moment(datet).format('LL'),
                 Total: amount,
                 Data: 'ไม่พบข้อมูล' + title_report,
                 })
@@ -179,14 +179,14 @@ exports.borrowandreturn_datareport = async (req, res) => {
             }
             res.json({
                 Title: title_report,
-                DateThai: helper.convdatethai(date),
+                DateThai: moment(date).format('LL'),
                 Total: amount,
                 Data: datareport,
             });
         } else {
             res.json({
                 Title: title_report,
-                DateThai: helper.convdatethai(date),
+                DateThai: moment(date).format('LL'),
                 Total: amount,
                 Data: 'ไม่พบข้อมูล' + title_report
             })
