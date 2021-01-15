@@ -3,6 +3,7 @@ const helper = require('../helper/stringHelper');
 const { Op } = require('sequelize');
 const moment = require('moment');
 moment.locale('th');
+process.env.TZ = 'Asia/Calcutta';
 
 ////////// รายงานข้อมูลการยืมสมาชิก ///////////
 exports.borrowandreturn_of_User_datareport = async (req, res) => {
