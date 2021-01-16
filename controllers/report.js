@@ -85,12 +85,10 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
 exports.notReturn_datareport = async (req, res) => {
     try {
         const title_report = "รายงานหนังสือค้างส่ง";
-        const date = moment(req.body.date).format('YYYY-MM-DD');
-        const datet = new Date(date);
-        console.log(date);
-        console.log(datet);
+        const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
+        const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
         var datareport = await borrowandreturn.sequelize.query(
-            'SELECT `borrowandreturn`.`bnr_ID`, `borrowandreturn`.`Librarian_ID`, `borrowandreturn`.`Member_ID`, `borrowandreturn`.`Barcode`, `borrowandreturn`.`Bib_ID`, `borrowandreturn`.`Borrow`, `borrowandreturn`.`Due`, `borrowandreturn`.`Returns`, `borrowandreturn`.`createdAt`, `borrowandreturn`.`updatedAt`,`databib_item`.`Barcode` AS `Barcode`,CONCAT(`librariannames`.`FName`," ",`librariannames`.`LName`) AS `librariannames`,CONCAT(`membernames`.`FName`," ",`membernames`.`LName`) AS `membernames`,`nameBooks`.`Subfield` AS `nameBooks`, `ISBNs`.`Subfield` AS `ISBNs`FROM `borrowandreturns` AS `borrowandreturn` LEFT OUTER JOIN `databib_items` AS `databib_item` ON `borrowandreturn`.`Barcode` = `databib_item`.`Barcode` LEFT OUTER JOIN `allmembers` AS `librariannames` ON `borrowandreturn`.`Librarian_ID` = `librariannames`.`member_ID` LEFT OUTER JOIN `allmembers` AS `membernames` ON `borrowandreturn`.`Member_ID` = `membernames`.`member_ID` LEFT OUTER JOIN `databibs` AS `nameBooks` ON `borrowandreturn`.`Bib_ID` = `nameBooks`.`Bib_ID` AND `nameBooks`.`Field` = "245" LEFT OUTER JOIN `databibs` AS `ISBNs` ON `borrowandreturn`.`Bib_ID` = `ISBNs`.`Bib_ID` AND `ISBNs`.`Field` = "020" WHERE `borrowandreturn`.`Due` IS NULL AND DATE(`borrowandreturn`.`Borrow`) ="' + date + '"',
+            'SELECT `borrowandreturn`.`bnr_ID`, `borrowandreturn`.`Librarian_ID`, `borrowandreturn`.`Member_ID`, `borrowandreturn`.`Barcode`, `borrowandreturn`.`Bib_ID`, `borrowandreturn`.`Borrow`, `borrowandreturn`.`Due`, `borrowandreturn`.`Returns`, `borrowandreturn`.`createdAt`, `borrowandreturn`.`updatedAt`,`databib_item`.`Barcode` AS `Barcode`,CONCAT(`librariannames`.`FName`," ",`librariannames`.`LName`) AS `librariannames`,CONCAT(`membernames`.`FName`," ",`membernames`.`LName`) AS `membernames`,`nameBooks`.`Subfield` AS `nameBooks`, `ISBNs`.`Subfield` AS `ISBNs`FROM `borrowandreturns` AS `borrowandreturn` LEFT OUTER JOIN `databib_items` AS `databib_item` ON `borrowandreturn`.`Barcode` = `databib_item`.`Barcode` LEFT OUTER JOIN `allmembers` AS `librariannames` ON `borrowandreturn`.`Librarian_ID` = `librariannames`.`member_ID` LEFT OUTER JOIN `allmembers` AS `membernames` ON `borrowandreturn`.`Member_ID` = `membernames`.`member_ID` LEFT OUTER JOIN `databibs` AS `nameBooks` ON `borrowandreturn`.`Bib_ID` = `nameBooks`.`Bib_ID` AND `nameBooks`.`Field` = "245" LEFT OUTER JOIN `databibs` AS `ISBNs` ON `borrowandreturn`.`Bib_ID` = `ISBNs`.`Bib_ID` AND `ISBNs`.`Field` = "020" WHERE `borrowandreturn`.`Due` IS NULL AND DATE(`borrowandreturn`.`Borrow`) BETWEEN "' + startDate + '" AND "' + endDate + '"',
             { type: borrowandreturn.sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
@@ -105,14 +103,14 @@ exports.notReturn_datareport = async (req, res) => {
             }
             res.json({
                 Title: title_report,
-                DateThai: moment(datet).format('LL'),
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
                 Total: amount,
                 Data: datareport,
             });
         } else {
             res.json({
                 Title: title_report,
-                DateThai: moment(datet).format('LL'),
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
                 Total: amount,
                 Data: 'ไม่พบข้อมูล' + title_report,
                 })
@@ -128,7 +126,8 @@ exports.notReturn_datareport = async (req, res) => {
 exports.borrowandreturn_datareport = async (req, res) => {
     try {
         const title_report = "รายงานสถิติข้อมูลการยืม-คืนหนังสือ";
-        const date = new Date(req.body.date)
+        const startDate = new Date(req.body.startDate)
+        const endDate = new Date(req.body.endDate)
         var datareport = await borrowandreturn.findAll({
             include: [
                 {
@@ -160,14 +159,13 @@ exports.borrowandreturn_datareport = async (req, res) => {
                 }
             ],
             where: {
-                Borrow: date
+                Borrow: {
+                    [Op.between]: [startDate, endDate]
+                }
+                // Borrow: date
             }
         });
-        const amount = await borrowandreturn.count({
-            where: {
-                Borrow: date
-            }
-        });
+        var amount = 0;
         if (datareport != '' && datareport != null && datareport != undefined) {
             for (const key in datareport) {
                 datareport[key].dataValues.databib_item = datareport[key].databib_item.Barcode;
@@ -178,17 +176,18 @@ exports.borrowandreturn_datareport = async (req, res) => {
                 datareport[key].dataValues.Borrow= moment(datareport[key].Borrow).format('ll');
                 datareport[key].dataValues.Due= moment(datareport[key].Due).format('ll');
                 datareport[key].dataValues.Returns= moment(datareport[key].Returns).format('ll');
+                amount++;
             }
             res.json({
                 Title: title_report,
-                DateThai: moment(date).format('LL'),
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
                 Total: amount,
                 Data: datareport,
             });
         } else {
             res.json({
                 Title: title_report,
-                DateThai: moment(date).format('LL'),
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
                 Total: amount,
                 Data: 'ไม่พบข้อมูล' + title_report
             })
@@ -206,10 +205,10 @@ exports.borrowandreturn_datareport = async (req, res) => {
 exports.Fine_receipt_datareport = async (req, res) => {
     try {
         const title_report = "รายงานค่าปรับ";
-        const date = moment(req.body.date).format('YYYY-MM-DD');
-        const datet = new Date(date);
+        const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
+        const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
         var datareport = await sequelize.query(
-            'SELECT `receipt_ID`, `bnr_ID`, `receipt_NO`, `Amount`, `fine_type`, `IsPaid`, `Description`, `createdAt`, `updatedAt` FROM `fine_reciepts` AS `fine_reciept` WHERE DATE(`fine_reciept`.`createdAt`) = "' + date + '"',
+            'SELECT `receipt_ID`, `bnr_ID`, `receipt_NO`, `Amount`, `fine_type`, `IsPaid`, `Description`, `createdAt`, `updatedAt` FROM `fine_reciepts` AS `fine_reciept` WHERE DATE(`fine_reciept`.`createdAt`) BETWEEN "' + startDate + '" AND "' + endDate + '"',
             { type: sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
@@ -223,14 +222,14 @@ exports.Fine_receipt_datareport = async (req, res) => {
             }
             res.json({
                 Title: title_report,
-                DateThai: moment(datet).format('LL'),
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
                 Total: amount,
                 Data: datareport,
             });
         } else {
             res.json({
                 Title: title_report,
-                DateThai: moment(datet).format('LL'),
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
                 Total: amount,
                 Data: 'ไม่พบข้อมูล' + title_report,
                 })
@@ -243,3 +242,49 @@ exports.Fine_receipt_datareport = async (req, res) => {
 };
 
 ////// รายงานการตัดจำหน่ายหนังสือ ////////
+exports.bibitem_description = async (req,res)=>{
+    const title_report = "รายงานการตัดจำหน่ายหนังสือ";
+    const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
+    const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
+    try {
+    var datareport = await sequelize.query(
+                "SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`,' ',`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245' WHERE  `databib_item`.`item_in` BETWEEN '" + startDate + "' AND '" + endDate + "'",
+                { type: sequelize.QueryTypes.SELECT }
+        )
+        let amount = 0;
+    if ( datareport != 0 ) {
+            datareport.map((data) => {
+                data.namebooks = helper.subfReplaceToBlank(data.namebooks);
+                if (data.item_description) {
+                    if (data.item_description.indexOf('||') !== -1) {
+                        var desc_in = (data.item_description.split('||')[0]) ? data.item_description.split('||')[0] : '-';
+                        var desc_out = (data.item_description.split('||')[1]) ? data.item_description.split('||')[1] : '-';
+                        Object.assign(data, { 'desc_in': desc_in,'desc_out': desc_out });
+                    }else{
+                        Object.assign(data, { 'desc_in': data.item_description,'desc_out': '-' });
+                    }
+                }else{
+                    data.item_description = '-'
+                    Object.assign(data, { 'desc_in': '-','desc_out': '-' });
+                }
+                data.item_in= moment(data.item_in).format('ll');
+                data.item_out= moment(data.item_out).format('ll');
+            });
+            res.json({
+                Title: title_report,
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
+                Total: amount,
+                Data: datareport,
+            });
+    } else {
+            res.json({
+                Title: title_report,
+                DateThai: moment(startDate).format('LL') + ' ถึง ' + moment(endDate).format('LL'),
+                Total: amount,
+                Data: 'ไม่พบข้อมูล' + title_report,
+                    })
+    }
+     } catch (e) {
+            console.log(e);
+    }
+}

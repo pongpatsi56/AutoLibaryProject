@@ -16,5 +16,8 @@ router.post("/notreturnreport", ReportDataControllers.notReturn_datareport);
 /* รายงานค่าปรับ */
 router.post("/finesreport", ReportDataControllers.Fine_receipt_datareport);
 
+/* รายงานการตัดจำหน่ายหนังสือ */
+router.post("/descriptreport", ReportDataControllers.bibitem_description);
+
 
 module.exports = router;
