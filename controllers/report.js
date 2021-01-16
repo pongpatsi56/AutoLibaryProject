@@ -1,11 +1,11 @@
-const { borrowandreturn, databib_item, databib, allmembers } = require('../models');
+const { borrowandreturn, databib_item, databib, allmembers, sequelize } = require('../models');
 const helper = require('../helper/stringHelper');
 const { Op } = require('sequelize');
 const moment = require('moment');
 moment.locale('th');
-process.env.TZ = 'Asia/Calcutta';
+process.env.TZ = 'Asia/Bangkok';
 
-////////// รายงานข้อมูลการยืมสมาชิก ///////////
+////////// รายงานข้อมูลการยืมของสมาชิก ///////////
 exports.borrowandreturn_of_User_datareport = async (req, res) => {
     try {
         const title_report = "รายงานข้อมูลการยืมสมาชิก";
@@ -49,7 +49,7 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
           for (const key in datareport) {
             datareport[key].dataValues.databib_item = datareport[key].databib_item.Barcode;
             datareport[key].dataValues.librariannames = datareport[key].librariannames.FName + " " + datareport[key].librariannames.FName;
-            datareport[key].dataValues.membernames = datareport[key].membernames.FName + " " + datareport[key].membernames.FName;;
+            datareport[key].dataValues.membernames = datareport[key].membernames.FName + " " + datareport[key].membernames.FName;
             datareport[key].dataValues.ISBNs = (datareport[key].ISBNs) ? helper.subfReplaceToBlank(datareport[key].ISBNs.Subfield) : '-';
             datareport[key].dataValues.nameBooks = helper.subfReplaceToBlank(datareport[key].dataValues.nameBooks.Subfield);
             datareport[key].dataValues.Borrow= moment(datareport[key].Borrow).format('ll');
@@ -59,6 +59,7 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
           }
           res.json({
             Title: title_report,
+            DateThai: moment(date).format('LL'),
             Member: member_ID,
             Total: amount,
             Data: datareport,
@@ -77,7 +78,7 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
     }
 };
 
-////// รายงานขอหนังสือ ////////
+////// รายงานข้อมูลหนังสือ ////////
 
 
 //////// รายงานหนังสือค้างส่ง /////////
@@ -200,6 +201,45 @@ exports.borrowandreturn_datareport = async (req, res) => {
 
 ////// รายงานสถิติการเข้าใช้ห้องสมุด ////////
 
+
 ////// รายงานค่าปรับ ////////
+exports.Fine_receipt_datareport = async (req, res) => {
+    try {
+        const title_report = "รายงานค่าปรับ";
+        const date = moment(req.body.date).format('YYYY-MM-DD');
+        const datet = new Date(date);
+        var datareport = await sequelize.query(
+            'SELECT `receipt_ID`, `bnr_ID`, `receipt_NO`, `Amount`, `fine_type`, `IsPaid`, `Description`, `createdAt`, `updatedAt` FROM `fine_reciepts` AS `fine_reciept` WHERE DATE(`fine_reciept`.`createdAt`) = "' + date + '"',
+            { type: sequelize.QueryTypes.SELECT }
+        )
+        let amount = 0;
+        if (datareport != '' && datareport != null && datareport != undefined) {
+            for (const key in datareport) {
+                datareport[key].receipt_NO = (datareport[key].receipt_NO) ? datareport[key].receipt_NO : '-';
+                datareport[key].Description = (datareport[key].Description) ? datareport[key].Description : '-';
+                datareport[key].createdAt= moment(datareport[key].createdAt).format('ll');
+                datareport[key].Amount= datareport[key].Amount + ' บาท';
+                amount++;
+            }
+            res.json({
+                Title: title_report,
+                DateThai: moment(datet).format('LL'),
+                Total: amount,
+                Data: datareport,
+            });
+        } else {
+            res.json({
+                Title: title_report,
+                DateThai: moment(datet).format('LL'),
+                Total: amount,
+                Data: 'ไม่พบข้อมูล' + title_report,
+                })
+        }
+
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
 
 ////// รายงานการตัดจำหน่ายหนังสือ ////////

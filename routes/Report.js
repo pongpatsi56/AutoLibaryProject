@@ -13,5 +13,8 @@ router.post("/bnrreport", ReportDataControllers.borrowandreturn_datareport);
 /* รายงานหนังสือค้างส่ง */
 router.post("/notreturnreport", ReportDataControllers.notReturn_datareport);
 
+/* รายงานค่าปรับ */
+router.post("/finesreport", ReportDataControllers.Fine_receipt_datareport);
+
 
 module.exports = router;
