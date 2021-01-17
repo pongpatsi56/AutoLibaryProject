@@ -5,16 +5,16 @@ module.exports =(sequelize,DataTypes) => {
             allowNull:false,
             validate:{
                 notEmpty:true
-            },
-            primaryKey: true,
-            autoIncrement:true
+            }
         },
         bnr_ID:{
             type:DataTypes.INTEGER(20),
             allowNull:false,
             validate:{
                 notEmpty:true
-            }
+            },
+            primaryKey: true,
+            autoIncrement:true
         },
         receipt_NO:{
             type:DataTypes.STRING(10) + ' CHARSET utf8 COLLATE utf8_unicode_ci'
