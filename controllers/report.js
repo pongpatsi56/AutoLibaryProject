@@ -50,8 +50,8 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
         if (datareport != "" && datareport != null && datareport != undefined) {
           for (const key in datareport) {
             datareport[key].dataValues.databib_item = datareport[key].databib_item.Barcode;
-            datareport[key].dataValues.librariannames = datareport[key].librariannames.FName + " " + datareport[key].librariannames.FName;
-            datareport[key].dataValues.membernames = datareport[key].membernames.FName + " " + datareport[key].membernames.FName;
+            datareport[key].dataValues.librariannames = datareport[key].librariannames.FName + " " + datareport[key].librariannames.LName;
+            datareport[key].dataValues.membernames = datareport[key].membernames.FName + " " + datareport[key].membernames.LName;
             datareport[key].dataValues.ISBNs = (datareport[key].ISBNs) ? helper.subfReplaceToBlank(datareport[key].ISBNs.Subfield) : '-';
             datareport[key].dataValues.nameBooks = helper.subfReplaceToBlank(datareport[key].dataValues.nameBooks.Subfield);
             datareport[key].dataValues.Borrow= moment(datareport[key].Borrow).format('ll');
@@ -243,46 +243,64 @@ exports.borrowandreturn_datareport = async (req, res) => {
 exports.statistic_borrowandreturn_datareport = async (req, res) => {
     try {
         const title_report = "รายงานสถิติการเข้าใช้ห้องสมุด";
-        const arrDays = ['จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์','อาทิตย์'];
-        const arrMonth = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+        const arrDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const arrMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
         const reqDate = new Date(req.body.Date);
         const MonthDate = new Date(req.body.Date).getMonth() + 1;
         const YearDate = new Date(req.body.Date).getFullYear();
+        const countTotal = await sequelize.query("SELECT COUNT(*) AS Total FROM `borrowandreturns` WHERE MONTH(`borrowandreturns`.`Borrow`) =  '" + MonthDate + "' AND YEAR(`borrowandreturns`.`Borrow`) =  '" + YearDate + "'",{ type: sequelize.QueryTypes.SELECT })
         var WeekofMonth_datareport = await sequelize.query(
             "SELECT COUNT(*) AS Total_ListOfWeek, FLOOR((DayOfMonth(`borrowandreturns`.`Borrow`)-1)/7)+1 AS NAMEWEEK FROM  `borrowandreturns` WHERE  MONTH(`borrowandreturns`.`Borrow`) =  '" + MonthDate + "' AND YEAR(`borrowandreturns`.`Borrow`) =  '" + YearDate + "' GROUP BY NAMEWEEK",
             { type: sequelize.QueryTypes.SELECT }).then(WeekData=>{
-                WeekData.map(value=>{
-                    value.NAMEWEEK = "สัปดาห์ที่ " + value.NAMEWEEK ;
-                })
-                return WeekData;
+                var  ObjWoM = {};
+                for (let i = 0; i < 5 ; i++) {
+                    const datares = WeekData.filter(val => val.NAMEWEEK == i)
+                    if (datares != '') {
+                        Object.assign(ObjWoM,{["WEEK" + datares[0].NAMEWEEK]: datares[0].Total_ListOfWeek})                     
+                    } else {
+                        Object.assign(ObjWoM,{["WEEK" + (i + 1) ]: '-'})            
+                    }
+                }
+                return ObjWoM;
             })
         var DayofWeek_datareport = await sequelize.query(
             "SELECT COUNT(*) AS Total_ListofDay, WEEKDAY(`borrowandreturns`.`Borrow`) + 1 AS NAMEDAY FROM  `borrowandreturns` WHERE  MONTH(`borrowandreturns`.`Borrow`) =  '" + MonthDate + "' AND YEAR(`borrowandreturns`.`Borrow`) =  '" + YearDate + "' GROUP BY NAMEDAY",
             { type: sequelize.QueryTypes.SELECT }).then(DaysData=>{
-                DaysData.map(value=>{
-                    value.NAMEDAY = arrDays[value.NAMEDAY - 1];
-                })
-                return DaysData;
+                var  ObjDoF = {};
+                for (let i = 1; i < 8 ; i++) {
+                    const datares = DaysData.filter(val => val.NAMEDAY == i)
+                    if (datares != '') {
+                            Object.assign(ObjDoF,{[arrDays[datares[0].NAMEDAY - 1]]: datares[0].Total_ListofDay})
+                    } 
+                    else {
+                        Object.assign(ObjDoF,{[arrDays[i - 1]]: '-'})            
+                    }
+                }
+                // DaysData.map(value=>{
+                //     value.NAMEDAY = arrDays[value.NAMEDAY - 1];
+                // })
+                return ObjDoF;
             })
         var MonthofYear_datareport = await sequelize.query(
             "SELECT COUNT(*) AS Total_ListOfMonth, " + MonthDate + " AS NAMEMONTH FROM  `borrowandreturns` WHERE  MONTH(`borrowandreturns`.`Borrow`) =  '" + MonthDate + "' AND YEAR(`borrowandreturns`.`Borrow`) =  '" + YearDate + "' GROUP BY NAMEMONTH",
             { type: sequelize.QueryTypes.SELECT }).then(MonthData=>{
+                var  ObjMoY = {};
                 MonthData.map(value=>{
-                    value.NAMEMONTH = arrMonth[value.NAMEMONTH - 1];
+                    Object.assign(ObjMoY,{[arrMonth[value.NAMEMONTH - 1]]: value.Total_ListOfMonth})
                 })
-                return MonthData;
+                return ObjMoY;
             })
         if (WeekofMonth_datareport != '' && DayofWeek_datareport != '' && MonthofYear_datareport != '') {
             res.json({
                 Title: title_report,
                 DateThai: moment(reqDate).format("MMM YYYY"),
-                Total: MonthofYear_datareport[0].Total_ListOfMonth + " รายการ",
-                Data: [WeekofMonth_datareport,DayofWeek_datareport,MonthofYear_datareport]
+                Total: countTotal[0].Total + " รายการ",
+                Data: [[WeekofMonth_datareport],[DayofWeek_datareport],[MonthofYear_datareport]]
             });
         } else {
             res.json({
                 Title: title_report,
-                Total: MonthofYear_datareport[0].Total_ListOfMonth + " รายการ",
+                Total: countTotal[0].Total + " รายการ",
                 DateThai: moment(reqDate).format("MMM YYYY"),
                 Data: 'ไม่พบข้อมูล' + title_report
             })
