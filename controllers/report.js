@@ -215,7 +215,7 @@ exports.borrowandreturn_datareport = async (req, res) => {
                 datareport[key].dataValues.nameBooks = helper.subfReplaceToBlank(datareport[key].nameBooks.Subfield);
                 datareport[key].dataValues.ISBNs = (datareport[key].ISBNs) ? helper.subfReplaceToBlank(datareport[key].ISBNs.Subfield) : '-';
                 datareport[key].dataValues.Borrow= moment(datareport[key].Borrow).format('ll');
-                datareport[key].dataValues.Due= moment(datareport[key].Due).format('ll');
+                datareport[key].dataValues.Due= (datareport[key].Due) ? moment(datareport[key].Due).format('ll') : '-';
                 datareport[key].dataValues.Returns= moment(datareport[key].Returns).format('ll');
                 amount++;
             }
