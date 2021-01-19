@@ -244,7 +244,7 @@ exports.statistic_borrowandreturn_datareport = async (req, res) => {
     try {
         const title_report = "รายงานสถิติการเข้าใช้ห้องสมุด";
         const arrDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-        const arrMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+        const arrMonth = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
         const reqDate = new Date(req.body.Date);
         const MonthDate = new Date(req.body.Date).getMonth() + 1;
         const YearDate = new Date(req.body.Date).getFullYear();
@@ -276,9 +276,6 @@ exports.statistic_borrowandreturn_datareport = async (req, res) => {
                         Object.assign(ObjDoF,{[arrDays[i - 1]]: '-'})            
                     }
                 }
-                // DaysData.map(value=>{
-                //     value.NAMEDAY = arrDays[value.NAMEDAY - 1];
-                // })
                 return ObjDoF;
             })
         var MonthofYear_datareport = await sequelize.query(
@@ -286,7 +283,7 @@ exports.statistic_borrowandreturn_datareport = async (req, res) => {
             { type: sequelize.QueryTypes.SELECT }).then(MonthData=>{
                 var  ObjMoY = {};
                 MonthData.map(value=>{
-                    Object.assign(ObjMoY,{[arrMonth[value.NAMEMONTH - 1]]: value.Total_ListOfMonth})
+                    Object.assign(ObjMoY,{"MONTH":arrMonth[value.NAMEMONTH - 1],"COUNT": value.Total_ListOfMonth})
                 })
                 return ObjMoY;
             })
