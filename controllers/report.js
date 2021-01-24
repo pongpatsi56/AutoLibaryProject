@@ -88,17 +88,17 @@ exports.bibliography_datareport = async (req, res) => {
         const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
         const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
         var datareport = await sequelize.query(
-            'SELECT `borrowandreturn`.`bnr_ID`, `borrowandreturn`.`Librarian_ID`, `borrowandreturn`.`Member_ID`, `borrowandreturn`.`Barcode`, `borrowandreturn`.`Bib_ID`, `borrowandreturn`.`Borrow`, `borrowandreturn`.`Due`, `borrowandreturn`.`Returns`, `borrowandreturn`.`createdAt`, `borrowandreturn`.`updatedAt`,`databib_item`.`Barcode` AS `Barcode`,CONCAT(`librariannames`.`FName`," ",`librariannames`.`LName`) AS `librariannames`,CONCAT(`membernames`.`FName`," ",`membernames`.`LName`) AS `membernames`,`nameBooks`.`Subfield` AS `nameBooks`, `ISBNs`.`Subfield` AS `ISBNs`FROM `borrowandreturns` AS `borrowandreturn` LEFT OUTER JOIN `databib_items` AS `databib_item` ON `borrowandreturn`.`Barcode` = `databib_item`.`Barcode` LEFT OUTER JOIN `allmembers` AS `librariannames` ON `borrowandreturn`.`Librarian_ID` = `librariannames`.`member_ID` LEFT OUTER JOIN `allmembers` AS `membernames` ON `borrowandreturn`.`Member_ID` = `membernames`.`member_ID` LEFT OUTER JOIN `databibs` AS `nameBooks` ON `borrowandreturn`.`Bib_ID` = `nameBooks`.`Bib_ID` AND `nameBooks`.`Field` = "245" LEFT OUTER JOIN `databibs` AS `ISBNs` ON `borrowandreturn`.`Bib_ID` = `ISBNs`.`Bib_ID` AND `ISBNs`.`Field` = "020" WHERE DATE(`borrowandreturn`.`Borrow`) BETWEEN "' + startDate + '" AND "' + endDate + '"',
+            'SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`," ",`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = "245" WHERE  `databib_item`.`item_in` BETWEEN "' + startDate + '" AND "' + endDate + '"',
             { type: sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
         if (datareport != '' && datareport != null && datareport != undefined) {
             for (const key in datareport) {
-                datareport[key].nameBooks = helper.subfReplaceToBlank(datareport[key].nameBooks);
+                datareport[key].namebooks = helper.subfReplaceToBlank(datareport[key].namebooks);
                 datareport[key].ISBNs = (datareport[key].ISBNs) ? helper.subfReplaceToBlank(datareport[key].ISBNs) : '-';
-                datareport[key].Borrow= moment(datareport[key].Borrow).format('ll');
-                datareport[key].Due= (datareport[key].Due) ? moment(datareport[key].Due).format('ll') : '-';
-                datareport[key].Returns= moment(datareport[key].Returns).format('ll');
+                datareport[key].item_in= moment(datareport[key].item_in).format('ll');
+                datareport[key].item_out= (datareport[key].item_out) ? moment(datareport[key].item_out).format('ll') : '-';
+                datareport[key].item_description= (datareport[key].item_description) ? datareport[key].item_description.replace('||', ' / ') : '-';
                 amount++;
             }
             res.json({
