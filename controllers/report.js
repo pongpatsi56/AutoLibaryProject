@@ -253,7 +253,7 @@ exports.statistic_borrowandreturn_datareport = async (req, res) => {
             "SELECT COUNT(*) AS Total_ListOfWeek, FLOOR((DayOfMonth(`borrowandreturns`.`Borrow`)-1)/7)+1 AS NAMEWEEK FROM  `borrowandreturns` WHERE  MONTH(`borrowandreturns`.`Borrow`) =  '" + MonthDate + "' AND YEAR(`borrowandreturns`.`Borrow`) =  '" + YearDate + "' GROUP BY NAMEWEEK",
             { type: sequelize.QueryTypes.SELECT }).then(WeekData=>{
                 var  ObjWoM = {};
-                for (let i = 0; i < 5 ; i++) {
+                for (let i = 0; i < 6 ; i++) {
                     const datares = WeekData.filter(val => val.NAMEWEEK == i)
                     if (datares != '') {
                         Object.assign(ObjWoM,{["WEEK" + datares[0].NAMEWEEK]: datares[0].Total_ListOfWeek})                     
@@ -355,7 +355,7 @@ exports.bibitem_description = async (req,res)=>{
     const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
     const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
     var datareport = await sequelize.query(
-                "SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`,' ',`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245' WHERE  `databib_item`.`item_in` BETWEEN '" + startDate + "' AND '" + endDate + "'",
+                "SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`,' ',`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245' WHERE  `databib_item`.`item_in` BETWEEN '" + startDate + "' AND '" + endDate + "' ORDER BY  `databib_item`.`item_status` ASC , `databib_item`.`item_description`  DESC",
                 { type: sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
