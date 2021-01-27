@@ -25,7 +25,9 @@ exports.list_databib_subfieldObj_by_id = async (req, res) => {
             where: {
                 Bib_ID: req.params.id
             },
-            order: ['Field']
+            order: [
+                [sequelize.fn('ABS', sequelize.literal('Field'))]
+            ]
         });
         if (db) {
             for (const val of db) {
