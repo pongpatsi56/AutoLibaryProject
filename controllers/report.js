@@ -44,7 +44,8 @@ exports.borrowandreturn_of_User_datareport = async (req, res) => {
             ],
             where: {
                 member_ID: member_ID
-            }
+            },
+            order:[["Borrow", "DESC"]]
         });
         let amount = 0;
         if (datareport != "" && datareport != null && datareport != undefined) {
@@ -86,15 +87,19 @@ exports.bibliography_datareport = async (req, res) => {
     try {
         const title_report = "รายงานข้อมูลหนังสือ";
         const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
-        const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
+        const endDate = req.body.endDate != '' ? moment(req.body.endDate).format('YYYY-MM-DD') : null;
+        let _where = 'BETWEEN "' + startDate + '" AND "' + endDate + '"';
+        if (!endDate) {
+            _where = '= "' + startDate + '"';
+        }
         var datareport = await sequelize.query(
-            'SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`," ",`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = "245" WHERE  `databib_item`.`item_in` BETWEEN "' + startDate + '" AND "' + endDate + '"',
+            'SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`," ",`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = "245" WHERE `databib_item`.`item_status` != "Remove" AND DATE(`databib_item`.`item_in`) ' + _where +' ORDER BY `databib_item`.`item_in` DESC',
             { type: sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
         if (datareport != '' && datareport != null && datareport != undefined) {
             for (const key in datareport) {
-                datareport[key].namebooks = helper.subfReplaceToBlank(datareport[key].namebooks);
+                datareport[key].namebooks =(datareport[key].namebooks) ? helper.subfReplaceToBlank(datareport[key].namebooks) : '-';
                 datareport[key].ISBNs = (datareport[key].ISBNs) ? helper.subfReplaceToBlank(datareport[key].ISBNs) : '-';
                 datareport[key].item_in= moment(datareport[key].item_in).format('ll');
                 datareport[key].item_out= (datareport[key].item_out) ? moment(datareport[key].item_out).format('ll') : '-';
@@ -127,9 +132,13 @@ exports.notReturn_datareport = async (req, res) => {
     try {
         const title_report = "รายงานหนังสือค้างส่ง";
         const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
-        const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
+        const endDate = req.body.endDate != '' ? moment(req.body.endDate).format('YYYY-MM-DD') : null;
+        let _where = 'BETWEEN "' + startDate + '" AND "' + endDate + '"';
+        if (!endDate) {
+            _where = '= "' + startDate + '"';
+        }
         var datareport = await borrowandreturn.sequelize.query(
-            'SELECT `borrowandreturn`.`bnr_ID`, `borrowandreturn`.`Librarian_ID`, `borrowandreturn`.`Member_ID`, `borrowandreturn`.`Barcode`, `borrowandreturn`.`Bib_ID`, `borrowandreturn`.`Borrow`, `borrowandreturn`.`Due`, `borrowandreturn`.`Returns`, `borrowandreturn`.`createdAt`, `borrowandreturn`.`updatedAt`,`databib_item`.`Barcode` AS `Barcode`,CONCAT(`librariannames`.`FName`," ",`librariannames`.`LName`) AS `librariannames`,CONCAT(`membernames`.`FName`," ",`membernames`.`LName`) AS `membernames`,`nameBooks`.`Subfield` AS `nameBooks`, `ISBNs`.`Subfield` AS `ISBNs`FROM `borrowandreturns` AS `borrowandreturn` LEFT OUTER JOIN `databib_items` AS `databib_item` ON `borrowandreturn`.`Barcode` = `databib_item`.`Barcode` LEFT OUTER JOIN `allmembers` AS `librariannames` ON `borrowandreturn`.`Librarian_ID` = `librariannames`.`member_ID` LEFT OUTER JOIN `allmembers` AS `membernames` ON `borrowandreturn`.`Member_ID` = `membernames`.`member_ID` LEFT OUTER JOIN `databibs` AS `nameBooks` ON `borrowandreturn`.`Bib_ID` = `nameBooks`.`Bib_ID` AND `nameBooks`.`Field` = "245" LEFT OUTER JOIN `databibs` AS `ISBNs` ON `borrowandreturn`.`Bib_ID` = `ISBNs`.`Bib_ID` AND `ISBNs`.`Field` = "020" WHERE `borrowandreturn`.`Due` IS NULL AND DATE(`borrowandreturn`.`Borrow`) BETWEEN "' + startDate + '" AND "' + endDate + '"',
+            'SELECT `borrowandreturn`.`bnr_ID`, `borrowandreturn`.`Librarian_ID`, `borrowandreturn`.`Member_ID`, `borrowandreturn`.`Barcode`, `borrowandreturn`.`Bib_ID`, `borrowandreturn`.`Borrow`, `borrowandreturn`.`Due`, `borrowandreturn`.`Returns`, `borrowandreturn`.`createdAt`, `borrowandreturn`.`updatedAt`,`databib_item`.`Barcode` AS `Barcode`,CONCAT(`librariannames`.`FName`," ",`librariannames`.`LName`) AS `librariannames`,CONCAT(`membernames`.`FName`," ",`membernames`.`LName`) AS `membernames`,`nameBooks`.`Subfield` AS `nameBooks`, `ISBNs`.`Subfield` AS `ISBNs`FROM `borrowandreturns` AS `borrowandreturn` LEFT OUTER JOIN `databib_items` AS `databib_item` ON `borrowandreturn`.`Barcode` = `databib_item`.`Barcode` LEFT OUTER JOIN `allmembers` AS `librariannames` ON `borrowandreturn`.`Librarian_ID` = `librariannames`.`member_ID` LEFT OUTER JOIN `allmembers` AS `membernames` ON `borrowandreturn`.`Member_ID` = `membernames`.`member_ID` LEFT OUTER JOIN `databibs` AS `nameBooks` ON `borrowandreturn`.`Bib_ID` = `nameBooks`.`Bib_ID` AND `nameBooks`.`Field` = "245" LEFT OUTER JOIN `databibs` AS `ISBNs` ON `borrowandreturn`.`Bib_ID` = `ISBNs`.`Bib_ID` AND `ISBNs`.`Field` = "020" WHERE `borrowandreturn`.`Due` IS NULL AND DATE(`borrowandreturn`.`Borrow`) ' + _where +' ORDER BY `borrowandreturn`.`Borrow` DESC',
             { type: borrowandreturn.sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
@@ -204,7 +213,8 @@ exports.borrowandreturn_datareport = async (req, res) => {
                     [Op.between]: [startDate, endDate]
                 }
                 // Borrow: date
-            }
+            },
+            order:[["Borrow", "DESC"]]
         });
         var amount = 0;
         if (datareport != '' && datareport != null && datareport != undefined) {
@@ -313,9 +323,13 @@ exports.Fine_receipt_datareport = async (req, res) => {
     try {
         const title_report = "รายงานค่าปรับ";
         const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
-        const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
+        const endDate = req.body.endDate != '' ? moment(req.body.endDate).format('YYYY-MM-DD') : null;
+        let _where = 'BETWEEN "' + startDate + '" AND "' + endDate + '"';
+        if (!endDate) {
+            _where = '= "' + startDate + '"';
+        }
         var datareport = await sequelize.query(
-            'SELECT `receipt_ID`, `bnr_ID`, `receipt_NO`, `Amount`, `fine_type`, `IsPaid`, `Description`, `createdAt`, `updatedAt` FROM `fine_reciepts` AS `fine_reciept` WHERE DATE(`fine_reciept`.`createdAt`) BETWEEN "' + startDate + '" AND "' + endDate + '"',
+            'SELECT `receipt_ID`, `bnr_ID`, `receipt_NO`, `Amount`, `fine_type`, `IsPaid`, `Description`, `createdAt`, `updatedAt` FROM `fine_reciepts` AS `fine_reciept` WHERE DATE(`fine_reciept`.`createdAt`)' + _where + ' ORDER BY `createdAt` DESC',
             { type: sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
@@ -353,9 +367,13 @@ exports.bibitem_description = async (req,res)=>{
     try {
     const title_report = "รายงานการตัดจำหน่ายหนังสือ";
     const startDate = moment(req.body.startDate).format('YYYY-MM-DD');
-    const endDate = moment(req.body.endDate).format('YYYY-MM-DD');
+    const endDate = req.body.endDate != '' ? moment(req.body.endDate).format('YYYY-MM-DD') : null;
+    let _where = "BETWEEN '" + startDate + "' AND '" + endDate + "'";
+    if (!endDate) {
+        _where = "= '" + startDate + "'";
+    }
     var datareport = await sequelize.query(
-                "SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`,' ',`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245' WHERE  `databib_item`.`item_in` BETWEEN '" + startDate + "' AND '" + endDate + "' ORDER BY  `databib_item`.`item_status` ASC , `databib_item`.`item_description`  DESC",
+        "SELECT `databib_item`.`Bib_ID`,`databib_item`.`Barcode`,`databib_item`.`Copy`,`databib_item`.`item_status`,`databib_item`.`item_in`,`databib_item`.`item_out`,CONCAT(`allmember`.`FName`,' ',`allmember`.`LName`) AS `librariannames`,`databib_item`.`item_description`,`databib`.`Subfield` AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `allmembers` AS  `allmember` ON `allmember`.`member_ID` = `databib_item`.`libid_getitemin` LEFT OUTER JOIN `databibs` AS `databib` ON `databib_item`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245' WHERE `databib_item`.`item_status` = 'Remove' AND DATE(`databib_item`.`item_in`) " + _where + " ORDER BY  `databib_item`.`item_status` ASC , `databib_item`.`item_description`  DESC",
                 { type: sequelize.QueryTypes.SELECT }
         )
         let amount = 0;
