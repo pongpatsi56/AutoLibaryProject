@@ -81,7 +81,8 @@ exports.List_All_BorrowandReturn = async (req, res) => {
                         }
                     }
                 ]
-            }
+            },
+            order:[['Borrow','DESC']]
         }).then(dborw => {
             if (dborw != '') {
                 dborw.map((data) => {
@@ -164,6 +165,9 @@ exports.List_itemBooktoBorrow = (req, res) => {
             "SELECT `databib_item`.`Barcode`, `databib_item`.`Bib_ID`, `databib_item`.`Copy`, `databib_item`.`Item_status`, `databib_item`.`item_description`,REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (REPLACE (`databibs`.`Subfield`,'$a',''),'$b',''),'$c',''),'$e',''),'$f',''),'$g',''),'$h','') AS `namebooks` FROM `databib_items` AS `databib_item` LEFT OUTER JOIN `databibs` AS `databibs` ON `databib_item`.`Bib_ID` = `databibs`.`Bib_ID` AND `databibs`.`Field` = '245' WHERE `databib_item`.`Barcode` ='" + req.params.brcd + "'",
             { type: databib_item.sequelize.QueryTypes.SELECT }
         ).then((out) => {
+            let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
+            let date7day = moment(datenow).add(7, 'days').format('YYYY-MM-DD');
+            out[0] = {...out[0],"Borrow":datenow,"Returns":date7day}
             res.send(out);
         })
     } catch (e) {
