@@ -100,7 +100,7 @@ exports.List_All_BorrowandReturn = async (req, res) => {
 
         ///////////////////// ค่าปรับค้าง /////////////////////////
         await fine_reciept.sequelize.query(
-            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`fine_reciept`.`receipt_NO` IS NULL AND `borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
+            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
             { type: fine_reciept.sequelize.QueryTypes.SELECT }
         ).then((dfin) => {
             if (dfin != '') {
@@ -178,13 +178,12 @@ exports.List_itemBooktoBorrow = (req, res) => {
 exports.create_Borrow_Data = async (req, res) => {
     try {
         let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
-        let date7day = moment(datenow).add(7, 'days').format('YYYY-MM-DD');
         const resObjBody = req.body.databorrow;
         if (resObjBody && resObjBody != null && resObjBody != '') {
             for (const key in resObjBody) {
                 const getBibid = await databib_item.findOne({ attributes: ['Bib_ID'], where: { Barcode: resObjBody[key]['Barcode'] } });
                 await databib_item.update({ item_status: 'Not Available' },{ where: { Barcode: resObjBody[key]['Barcode'] } });
-                Object.assign(resObjBody[key], { "Borrow": datenow,"item_in": datenow,"Due": null,"Returns": date7day,"Bib_ID": getBibid['Bib_ID'] });
+                Object.assign(resObjBody[key], { "item_in": datenow,"Due": null,"Bib_ID": getBibid['Bib_ID'] });
             }
             await borrowandreturn.bulkCreate(resObjBody).then(outp => res.json(outp));
         } else {
