@@ -167,7 +167,7 @@ exports.List_itemBooktoBorrow = (req, res) => {
         ).then((out) => {
             let datenow = moment().format('YYYY-MM-DD HH:mm:ss');
             let date7day = moment(datenow).add(7, 'days').format('YYYY-MM-DD');
-            out[0] = {...out[0],"Borrow":datenow,"Returns":date7day}
+            out[0] = {...out[0],"Borrow_send":datenow,"Returns_send":date7day}
             res.send(out);
         })
     } catch (e) {
