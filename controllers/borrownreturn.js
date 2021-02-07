@@ -100,7 +100,7 @@ exports.List_All_BorrowandReturn = async (req, res) => {
 
         ///////////////////// ค่าปรับค้าง /////////////////////////
         await fine_reciept.sequelize.query(
-            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`borrowandreturn`.`Member_ID` = '" + req.params.memid + "')",
+            " SELECT `fine_reciept`.`receipt_ID`,`fine_reciept`.`bnr_ID`,`borrowandreturn`.`Due`,`borrowandreturn`.`Due`,`borrowandreturn`.`Returns`,`fine_reciept`.`receipt_NO`,`fine_reciept`.`Amount` ,`fine_reciept`.`fine_type` ,`fine_reciept`.`IsPaid`,`fine_reciept`.`fine_type` ,`fine_reciept`.`Description` ,`databib`.`Subfield` AS `namebooks` FROM `fine_reciepts` AS `fine_reciept` LEFT OUTER JOIN `borrowandreturns` AS `borrowandreturn` ON `fine_reciept`.`bnr_ID` = `borrowandreturn`.`bnr_ID` LEFT OUTER JOIN `databibs` AS `databib` ON `borrowandreturn`.`Bib_ID` = `databib`.`Bib_ID` AND `databib`.`Field` = '245'  WHERE (`borrowandreturn`.`Member_ID` = '" + req.params.memid + "') ORDER BY `borrowandreturn`.`Returns` DESC",
             { type: fine_reciept.sequelize.QueryTypes.SELECT }
         ).then((dfin) => {
             if (dfin != '') {
