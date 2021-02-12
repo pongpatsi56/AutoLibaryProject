@@ -170,6 +170,20 @@ exports.list_All_UserData_AdminManage = (req, res) => {
 exports.create_New_User = async (req, res) => {
     try {
         const { member_ID, mem_Citizenid, FName, LName, Class, Classroom, Position, profile_img  } = req.body;
+        const is_member_id = await allmembers.findOne({ where: { member_ID: member_ID } });
+        if (is_member_id) {
+            res.json({
+                Results: "failed.",
+                msg: `this member_ID already exists.`
+            })
+        }
+        const is_member_citizen_id = await allmembers.findOne({ where: { mem_Citizenid: mem_Citizenid } });
+        if (is_member_citizen_id) {
+            res.json({
+                Results: "failed.",
+                msg: `this member citizen already exists.`
+            })
+        }
         await allmembers.create({
             member_ID: member_ID,
             mem_Citizenid: mem_Citizenid,
