@@ -173,16 +173,20 @@ exports.create_New_User = async (req, res) => {
         const is_member_id = await allmembers.findOne({ where: { member_ID: member_ID } });
         if (is_member_id) {
             res.json({
-                Results: "failed.",
+                Response:"FAILED",
+                Results: is_member_id,
                 msg: `this member_ID already exists.`
             })
+            return
         }
         const is_member_citizen_id = await allmembers.findOne({ where: { mem_Citizenid: mem_Citizenid } });
         if (is_member_citizen_id) {
             res.json({
-                Results: "failed.",
+                Response:"FAILED",
+                Results: is_member_citizen_id,
                 msg: `this member citizen already exists.`
             })
+            return
         }
         await allmembers.create({
             member_ID: member_ID,
@@ -197,7 +201,7 @@ exports.create_New_User = async (req, res) => {
             profile_img:profile_img
         }).then(responses => {
             res.json({
-                status: 200,
+                Response: "OK",
                 Results: responses,
                 msg: `User has been Added.`
             })
