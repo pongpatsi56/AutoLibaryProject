@@ -175,7 +175,7 @@ exports.create_New_User = async (req, res) => {
             res.json({
                 Response:"FAILED",
                 Results: is_member_id,
-                msg: `this member_ID already exists.`
+                msg: `มีผู้ใช้รหัสนี้แล้ว`
             })
             return
         }
@@ -184,7 +184,7 @@ exports.create_New_User = async (req, res) => {
             res.json({
                 Response:"FAILED",
                 Results: is_member_citizen_id,
-                msg: `this member citizen already exists.`
+                msg: `มีผู้ใช้รหัสบัตรประชาชนนี้แล้ว`
             })
             return
         }
