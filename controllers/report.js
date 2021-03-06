@@ -1,6 +1,6 @@
 const { borrowandreturn, databib_item, databib, allmembers, sequelize } = require('../models');
 const helper = require('../helper/stringHelper');
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const moment = require('moment');
 moment.locale('th');
 process.env.TZ = 'Asia/Bangkok';

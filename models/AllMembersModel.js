@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const allmembers = sequelize.define("allmembers", {
         member_ID: {
-            type: DataTypes.INTEGER(11),
+            type: DataTypes.STRING(10),
             allowNull: false,
             validate: {
                 notEmpty: true
