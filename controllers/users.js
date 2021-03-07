@@ -201,6 +201,13 @@ exports.create_New_User = async (req, res) => {
             })
             return
         }
+        if (mem_Citizenid.length !== 13) {
+            res.json({
+                Response: "FAILED",
+                msg: `กรุณากรอกรหัสบัตรประชาชน 13 หลัก`
+            })
+            return
+        }
         await allmembers.create({
             member_ID: member_ID,
             mem_Citizenid: mem_Citizenid,
